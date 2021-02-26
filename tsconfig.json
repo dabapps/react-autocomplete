@@ -10,7 +10,8 @@
     "target": "ES5",
     "module": "CommonJS",
     "moduleResolution": "Node",
-    "jsx": "react"
+    "jsx": "react",
+    "typeRoots": ["node_modules/@types", "lib/@types"]
   },
   "include": ["lib", "examples"]
 }
