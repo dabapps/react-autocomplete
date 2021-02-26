@@ -1,3 +1,12 @@
 {
-  "extends": "dabapps"
+  "extends": "dabapps",
+  "rules": {
+    "no-nested-ternary": 0,
+    "react/jsx-no-bind": 0,
+    "react/no-string-refs": 0,
+    "react/no-children-prop": 0,
+    "@typescript-eslint/no-var-requires": 0,
+    "@typescript-eslint/no-empty-function": 0,
+    "dabapps/no-relative-parent-import": 0
+  }
 }

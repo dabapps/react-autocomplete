@@ -1,6 +1,7 @@
 import React from 'react';
 import DOM from 'react-dom';
-import Autocomplete from '../../lib/index';
+
+import Autocomplete from '../../lib';
 import { fakeCategorizedRequest } from '../../lib/utils';
 
 class App extends React.Component {

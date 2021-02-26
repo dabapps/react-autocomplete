@@ -1,7 +1,8 @@
 import React from 'react';
 import DOM from 'react-dom';
+
 import { getStates, matchStateToTerm, sortStates } from '../../lib/utils';
-import Autocomplete from '../../lib/index';
+import Autocomplete from '../../lib';
 
 class App extends React.Component {
   state = { value: 'Ma' };

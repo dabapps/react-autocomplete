@@ -1,6 +1,7 @@
 import React from 'react';
 import DOM from 'react-dom';
-import Autocomplete from '../../lib/index';
+
+import Autocomplete from '../../lib';
 import { getStates, fakeRequest } from '../../lib/utils';
 
 class App extends React.Component {

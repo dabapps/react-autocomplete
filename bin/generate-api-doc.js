@@ -72,11 +72,11 @@ function format(props) {
         return `${str}#### \`${name}: ${TYPES[type.name]}\`${
           required ? '' : ' (optional)'
         }\n${defaultValue}${description}\n`;
-      } else {
-        throw new Error(
-          `ERROR: \`${name}\` is present in \`defaultProps\` but not in \`propTypes\`!`
-        );
       }
+
+      throw new Error(
+        `ERROR: \`${name}\` is present in \`defaultProps\` but not in \`propTypes\`!`
+      );
     },
     ''
   );

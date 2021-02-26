@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import DOM from 'react-dom';
-import Autocomplete from '../../lib/index';
+
+import Autocomplete from '../../lib';
 import { getStates, matchStateToTerm } from '../../lib/utils';
 
 const STATES = getStates();

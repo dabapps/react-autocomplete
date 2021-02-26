@@ -1,6 +1,7 @@
 'use strict';
 
 const fs = require('fs');
+
 const pkg = require('../package.json');
 const generateDocFromModule = require('./generate-api-doc.js');
 
