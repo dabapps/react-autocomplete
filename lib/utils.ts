@@ -1,16 +1,27 @@
-export function matchStateToTerm(state, value) {
+interface USState {
+  abbr: string;
+  name: string;
+}
+
+interface Header {
+  header: string;
+}
+
+export function matchStateToTerm(state: USState, value: string) {
   return (
     state.name.toLowerCase().indexOf(value.toLowerCase()) !== -1 ||
     state.abbr.toLowerCase().indexOf(value.toLowerCase()) !== -1
   );
 }
 
-export function matchStateToTermWithHeaders(state, value) {
-  return (
-    state.header ||
-    state.name.toLowerCase().indexOf(value.toLowerCase()) !== -1 ||
-    state.abbr.toLowerCase().indexOf(value.toLowerCase()) !== -1
-  );
+export function matchStateToTermWithHeaders(
+  state: USState | Header,
+  value: string
+) {
+  return 'header' in state
+    ? state.header
+    : state.name.toLowerCase().indexOf(value.toLowerCase()) !== -1 ||
+        state.abbr.toLowerCase().indexOf(value.toLowerCase()) !== -1;
 }
 
 /**
@@ -21,7 +32,7 @@ export function matchStateToTermWithHeaders(state, value) {
  * location (or there is no match) will be sorted alphabetically - For example,
  * a search for "or" would return "North Carolina" above "North Dakota".
  */
-export function sortStates(a, b, value) {
+export function sortStates(a: USState, b: USState, value: string) {
   const aLower = a.name.toLowerCase();
   const bLower = b.name.toLowerCase();
   const valueLower = value.toLowerCase();
@@ -33,7 +44,7 @@ export function sortStates(a, b, value) {
   return aLower < bLower ? -1 : 1;
 }
 
-export function getStates() {
+export function getStates(): readonly USState[] {
   return [
     { abbr: 'AL', name: 'Alabama' },
     { abbr: 'AK', name: 'Alaska' },
@@ -88,7 +99,7 @@ export function getStates() {
   ];
 }
 
-export function getCategorizedStates() {
+export function getCategorizedStates(): readonly (USState | Header)[] {
   return [
     { header: 'West' },
     { abbr: 'AZ', name: 'Arizona' },
@@ -148,7 +159,7 @@ export function getCategorizedStates() {
   ];
 }
 
-export function fakeRequest(value, cb) {
+export function fakeRequest(value: string, cb: () => void) {
   return setTimeout(
     cb,
     500,
@@ -158,7 +169,7 @@ export function fakeRequest(value, cb) {
   );
 }
 
-export function fakeCategorizedRequest(value, cb) {
+export function fakeCategorizedRequest(value: string, cb: () => void) {
   setTimeout(
     cb,
     500,
