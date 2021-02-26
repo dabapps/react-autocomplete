@@ -1,7 +1,7 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const { findDOMNode } = require('react-dom');
-const scrollIntoView = require('dom-scroll-into-view');
+import * as React from 'react';
+import * as PropTypes from 'prop-types';
+import { findDOMNode } from 'react-dom';
+import * as scrollIntoView from 'dom-scroll-into-view';
 
 const IMPERATIVE_API = [
   'blur',
@@ -640,4 +640,4 @@ class Autocomplete extends React.Component {
   }
 }
 
-module.exports = Autocomplete;
+export default Autocomplete;
