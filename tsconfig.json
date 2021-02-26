@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noUncheckedIndexedAccess": true,
+    "noEmit": true,
+    "allowSyntheticDefaultImports": false,
+    "esModuleInterop": false,
+    "target": "ES5",
+    "module": "CommonJS",
+    "moduleResolution": "Node"
+  },
+  "include": ["lib", "examples"]
+}
