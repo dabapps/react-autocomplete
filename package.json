@@ -3,6 +3,14 @@
   "version": "1.8.1",
   "description": "Accessible, extensible, Autocomplete for React.js",
   "main": "./build/lib/Autocomplete.js",
+  "scripts": {
+    "prettier": "prettier --write '**/*.{ts,tsx,js,jsx,html,css,md,mk,json}'",
+    "prettier-check": "prettier --check '**/*.{ts,tsx,js,jsx,html,css,md,mk,json}'",
+    "lint": "eslint '**/*.{ts,tsx,js,jsx}'",
+    "typecheck": "tsc --noEmit",
+    "tests": "jest",
+    "test": "npm run typecheck && npm run lint && npm run prettier-check && npm run tests -- --runInBand --coverage"
+  },
   "files": [
     "build/lib/index.js",
     "build/lib/Autocomplete.js",
@@ -16,20 +24,6 @@
   "bugs": "https://github.com/reactjs/react-autocomplete/issues",
   "directories": {
     "example": "examples"
-  },
-  "scripts": {
-    "generate-readme": "scripty",
-    "gh-pages": "scripty",
-    "release": "scripty",
-    "build": "scripty",
-    "build:component": "scripty",
-    "build:examples": "scripty",
-    "test": "scripty",
-    "test:lint": "scripty",
-    "test:jest": "scripty",
-    "coverage": "scripty",
-    "start": "SCRIPTY_PARALLEL=true scripty",
-    "prettier": "scripty"
   },
   "authors": [
     "Ryan Florence <rpflorence@gmail.com>"
