@@ -65,8 +65,7 @@
   ],
   "keywords": [],
   "dependencies": {
-    "dom-scroll-into-view": "^2.0.1",
-    "prop-types": "^15.5.10"
+    "dom-scroll-into-view": "^2.0.1"
   },
   "peerDependencies": {
     "react": "^0.14.7 || ^15.0.0-0 || ^16.0.0-0",
