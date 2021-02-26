@@ -40,10 +40,8 @@
     "@babel/plugin-proposal-class-properties": "^7.13.0",
     "@babel/preset-env": "^7.13.5",
     "@babel/preset-react": "^7.12.13",
-    "babel-preset-react-hmre": "^1.1.1",
-    "babelify": "^7.3.0",
-    "browserify": "^13.3.0",
-    "browserify-hmr": "^0.3.5",
+    "babelify": "^10.0.0",
+    "browserify": "^17.0.0",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-15": "^1.4.3",
     "enzyme-to-json": "^3.6.1",
@@ -62,7 +60,7 @@
     "scripty": "^1.7.1",
     "st": "^1.2.0",
     "uglify-js": "^2.7.5",
-    "watchify": "^3.8.0",
+    "watchify": "^4.0.0",
     "youemdee": "^1.0.0"
   },
   "tags": [
