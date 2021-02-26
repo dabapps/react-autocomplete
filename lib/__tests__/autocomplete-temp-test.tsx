@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount, shallow } from 'enzyme';
 
-import Autocomplete from '../Autocomplete';
+import Autocomplete from '../autocomplete-temp';
 import {
   getStates,
   getCategorizedStates,
