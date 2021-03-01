@@ -106,13 +106,13 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
   private _scrollOffset: ScrollOffset | null = null;
   private myRefs: Record<string, HTMLElement | null> = {};
 
-  componentDidMount() {
+  componentDidMount(): void {
     if (this.isOpen()) {
       this.setMenuPositions();
     }
   }
 
-  componentWillReceiveProps(nextProps: Props<T>) {
+  componentWillReceiveProps(nextProps: Props<T>): void {
     if (
       this.state.highlightedIndex !== null &&
       this.state.highlightedIndex >= this.getFilteredItems(this.props).length
@@ -129,7 +129,7 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
     }
   }
 
-  componentDidUpdate(prevProps: Props<T>, prevState: State) {
+  componentDidUpdate(prevProps: Props<T>, prevState: State): void {
     if (
       (this.state.isOpen && !prevState.isOpen) ||
       ('open' in this.props && this.props.open && !prevProps.open)
@@ -142,21 +142,21 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
     }
   }
 
-  componentWillUnmount() {
+  componentWillUnmount(): void {
     if (typeof this._scrollTimer === 'number') {
       window.clearTimeout(this._scrollTimer);
     }
     this._scrollTimer = null;
   }
 
-  exposeAPI = (el: HTMLInputElement | null) => {
+  exposeAPI = (el: HTMLInputElement | null): void => {
     this.myRefs.input = el;
     IMPERATIVE_API.forEach(
       (ev) => (this[ev] = el && el[ev] && el[ev].bind(el))
     );
   };
 
-  maybeScrollItemIntoView() {
+  maybeScrollItemIntoView(): void {
     if (this.isOpen() && this.state.highlightedIndex !== null) {
       const itemNode = this.myRefs[`item-${this.state.highlightedIndex}`];
       const menuNode = this.myRefs.menu;
@@ -171,7 +171,7 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
   ): key is keyof typeof Autocomplete.keyDownHandlers =>
     key in Autocomplete.keyDownHandlers;
 
-  handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+  handleKeyDown = (event: KeyboardEvent<HTMLInputElement>): void => {
     const { key } = event;
 
     if (this.isKnownKeyHandler(key)) {
@@ -187,15 +187,15 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
     }
   };
 
-  handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+  handleChange = (event: ChangeEvent<HTMLInputElement>): void => {
     this.props.onChange?.(event, event.target.value);
   };
 
   static keyDownHandlers = {
-    ArrowDown<T>(
-      this: Autocomplete<T>,
+    ArrowDown<T2>(
+      this: Autocomplete<T2>,
       event: KeyboardEvent<HTMLInputElement>
-    ) {
+    ): void {
       event.preventDefault();
       const items = this.getFilteredItems(this.props);
       if (!items.length) return;
@@ -218,7 +218,10 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
       }
     },
 
-    ArrowUp<T>(this: Autocomplete<T>, event: KeyboardEvent<HTMLInputElement>) {
+    ArrowUp<T2>(
+      this: Autocomplete<T2>,
+      event: KeyboardEvent<HTMLInputElement>
+    ): void {
       event.preventDefault();
       const items = this.getFilteredItems(this.props);
       if (!items.length) return;
@@ -241,7 +244,10 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
       }
     },
 
-    Enter<T>(this: Autocomplete<T>, event: KeyboardEvent<HTMLInputElement>) {
+    Enter<T2>(
+      this: Autocomplete<T2>,
+      event: KeyboardEvent<HTMLInputElement>
+    ): void {
       // Key code 229 is used for selecting items from character selectors (Pinyin, Kana, etc)
       if (event.keyCode !== 13) return;
       // In case the user is currently hovering over the menu
@@ -292,7 +298,7 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
       }
     },
 
-    Escape<T>(this: Autocomplete<T>) {
+    Escape<T2>(this: Autocomplete<T2>): void {
       // In case the user is currently hovering over the menu
       this.setIgnoreBlur(false);
       this.setState({
@@ -301,13 +307,13 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
       });
     },
 
-    Tab<T>(this: Autocomplete<T>) {
+    Tab<T2>(this: Autocomplete<T2>): void {
       // In case the user is currently hovering over the menu
       this.setIgnoreBlur(false);
     },
   };
 
-  getFilteredItems(props: Props<T>) {
+  getFilteredItems(props: Props<T>): readonly T[] {
     const { shouldItemRender, sortItems } = props;
     let { items } = props;
 
@@ -322,7 +328,10 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
     return items;
   }
 
-  maybeAutoCompleteText = (state: State, props: Props<T>) => {
+  maybeAutoCompleteText = (
+    state: State,
+    props: Props<T>
+  ): { highlightedIndex: number | null } => {
     const { highlightedIndex } = state;
     const { value, getItemValue } = props;
     let index = highlightedIndex === null ? 0 : highlightedIndex;
@@ -352,7 +361,7 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
     return { highlightedIndex: null };
   };
 
-  setMenuPositions() {
+  setMenuPositions(): void {
     const { input } = this.myRefs;
     if (input) {
       const rect = input.getBoundingClientRect();
@@ -368,11 +377,11 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
     }
   }
 
-  highlightItemFromMouse(index: number) {
+  highlightItemFromMouse(index: number): void {
     this.setState({ highlightedIndex: index });
   }
 
-  selectItemFromMouse(item: T) {
+  selectItemFromMouse(item: T): void {
     const value = this.props.getItemValue(item);
     // The menu will de-render before a mouseLeave event
     // happens. Clear the flag to release control over focus
@@ -388,11 +397,11 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
     );
   }
 
-  setIgnoreBlur(ignore: boolean) {
+  setIgnoreBlur(ignore: boolean): void {
     this._ignoreBlur = ignore;
   }
 
-  renderMenu() {
+  renderMenu(): ReactElement {
     const items = this.getFilteredItems(this.props).map((item, index) => {
       const element = this.props.renderItem(
         item,
@@ -427,7 +436,7 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
     });
   }
 
-  handleInputBlur = (event: FocusEvent<HTMLInputElement>) => {
+  handleInputBlur = (event: FocusEvent<HTMLInputElement>): void => {
     if (this._ignoreBlur) {
       this._ignoreFocus = true;
       this._scrollOffset = getScrollOffset();
@@ -460,7 +469,7 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
     }
   };
 
-  handleInputFocus = (event: FocusEvent<HTMLInputElement>) => {
+  handleInputFocus = (event: FocusEvent<HTMLInputElement>): void => {
     if (this._ignoreFocus && this._scrollOffset) {
       this._ignoreFocus = false;
       const { x, y } = this._scrollOffset;
@@ -500,16 +509,17 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
     );
   }
 
-  handleInputClick = () => {
+  handleInputClick = (): void => {
     // Input will not be focused if it's disabled
-    if (this.isInputFocused() && !this.isOpen())
+    if (this.isInputFocused() && !this.isOpen()) {
       this.setState({ isOpen: true });
+    }
   };
 
   composeEventHandlers<E>(
     internal: (e: E) => void,
     external: undefined | ((e: E) => void)
-  ) {
+  ): (e: E) => void {
     return external
       ? (e: E) => {
           internal(e);
@@ -518,11 +528,11 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
       : internal;
   }
 
-  isOpen() {
-    return 'open' in this.props ? this.props.open : this.state.isOpen;
+  isOpen(): boolean {
+    return Boolean('open' in this.props ? this.props.open : this.state.isOpen);
   }
 
-  render() {
+  render(): ReactElement {
     if (this.props.debug) {
       // you don't like it, you love it
       this._debugStates.push({
