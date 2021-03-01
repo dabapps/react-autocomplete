@@ -175,7 +175,11 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
     const { key } = event;
 
     if (this.isKnownKeyHandler(key)) {
-      Autocomplete.keyDownHandlers[key].call(this, event);
+      Autocomplete.keyDownHandlers[key].call<
+        Autocomplete<T>,
+        [KeyboardEvent<HTMLInputElement>],
+        void
+      >(this, event);
     } else if (!this.isOpen()) {
       this.setState({
         isOpen: true,
