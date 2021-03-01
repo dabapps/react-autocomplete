@@ -28,6 +28,8 @@ jest.useFakeTimers();
 
 afterEach(() => {
   jest.clearAllTimers();
+  ((window.setTimeout as unknown) as jest.Mock).mockClear();
+  ((window.clearTimeout as unknown) as jest.Mock).mockClear();
 });
 
 describe('Autocomplete acceptance tests', () => {
@@ -442,9 +444,9 @@ describe('focus management', () => {
     ac.handleInputFocus({} as FocusEvent<HTMLInputElement>);
     expect(window.scrollTo).toHaveBeenCalledTimes(1);
     expect(window.scrollTo).toHaveBeenCalledWith(1, 2);
-    expect(clearTimeout).toHaveBeenCalledTimes(1);
-    expect(clearTimeout).toHaveBeenCalledWith(timer);
-    expect(setTimeout).toHaveBeenCalledTimes(1);
+    expect(window.clearTimeout).toHaveBeenCalledTimes(1);
+    expect(window.clearTimeout).toHaveBeenCalledWith(timer);
+    expect(window.setTimeout).toHaveBeenCalledTimes(1);
     expect(ac['_scrollTimer']).toEqual(expect.any(Number));
     expect(ac['_scrollOffset']).toBe(null);
     jest.runAllTimers();
@@ -461,8 +463,8 @@ describe('focus management', () => {
     ac['_scrollTimer'] = 42;
     tree.unmount();
     expect(ac['_scrollTimer']).toBe(null);
-    expect(clearTimeout).toHaveBeenCalledTimes(1);
-    expect(clearTimeout).toHaveBeenCalledWith(42);
+    expect(window.clearTimeout).toHaveBeenCalledTimes(1);
+    expect(window.clearTimeout).toHaveBeenCalledWith(42);
   });
 });
 
