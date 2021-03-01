@@ -189,8 +189,9 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
     if (
       (this.state.isOpen && !prevState.isOpen) ||
       ('open' in this.props && this.props.open && !prevProps.open)
-    )
+    ) {
       this.setMenuPositions();
+    }
 
     this.maybeScrollItemIntoView();
     if (prevState.isOpen !== this.state.isOpen) {
