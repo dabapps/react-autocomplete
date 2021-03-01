@@ -1,5 +1,7 @@
-import React from 'react';
-import DOM from 'react-dom';
+import * as React from 'react';
+// eslint-disable-next-line no-duplicate-imports
+import type { ChangeEvent } from 'react';
+import * as ReactDOM from 'react-dom';
 
 import { getStates, matchStateToTerm, sortStates } from '../../lib/utils';
 import Autocomplete from '../../lib';
@@ -23,7 +25,9 @@ class App extends React.Component {
           getItemValue={(item) => item.name}
           shouldItemRender={matchStateToTerm}
           sortItems={sortStates}
-          onChange={(event, value) => this.setState({ value })}
+          onChange={(_event: ChangeEvent<HTMLInputElement>, value) =>
+            this.setState({ value })
+          }
           onSelect={(value) => this.setState({ value })}
           renderMenu={(children) => <div className="menu">{children}</div>}
           renderItem={(item, isHighlighted) => (
@@ -40,8 +44,4 @@ class App extends React.Component {
   }
 }
 
-DOM.render(<App />, document.getElementById('container'));
-
-if (module.hot) {
-  module.hot.accept();
-}
+ReactDOM.render(<App />, document.getElementById('container'));

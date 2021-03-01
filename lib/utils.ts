@@ -1,13 +1,13 @@
-interface USState {
+export interface USState {
   abbr: string;
   name: string;
 }
 
-interface Header {
+export interface Header {
   header: string;
 }
 
-export function matchStateToTerm(state: USState, value: string) {
+export function matchStateToTerm(state: USState, value: string): boolean {
   return (
     state.name.toLowerCase().indexOf(value.toLowerCase()) !== -1 ||
     state.abbr.toLowerCase().indexOf(value.toLowerCase()) !== -1
@@ -17,9 +17,9 @@ export function matchStateToTerm(state: USState, value: string) {
 export function matchStateToTermWithHeaders(
   state: USState | Header,
   value: string
-) {
+): boolean {
   return 'header' in state
-    ? state.header
+    ? Boolean(state.header)
     : state.name.toLowerCase().indexOf(value.toLowerCase()) !== -1 ||
         state.abbr.toLowerCase().indexOf(value.toLowerCase()) !== -1;
 }
@@ -32,7 +32,7 @@ export function matchStateToTermWithHeaders(
  * location (or there is no match) will be sorted alphabetically - For example,
  * a search for "or" would return "North Carolina" above "North Dakota".
  */
-export function sortStates(a: USState, b: USState, value: string) {
+export function sortStates(a: USState, b: USState, value: string): number {
   const aLower = a.name.toLowerCase();
   const bLower = b.name.toLowerCase();
   const valueLower = value.toLowerCase();
@@ -159,8 +159,11 @@ export function getCategorizedStates(): readonly (USState | Header)[] {
   ];
 }
 
-export function fakeRequest(value: string, cb: () => void) {
-  return setTimeout(
+export function fakeRequest(
+  value: string,
+  cb: (items: readonly (USState | Header)[]) => void
+): number {
+  return window.setTimeout(
     cb,
     500,
     value
@@ -169,8 +172,11 @@ export function fakeRequest(value: string, cb: () => void) {
   );
 }
 
-export function fakeCategorizedRequest(value: string, cb: () => void) {
-  setTimeout(
+export function fakeCategorizedRequest(
+  value: string,
+  cb: (items: readonly (USState | Header)[]) => void
+): number {
+  return window.setTimeout(
     cb,
     500,
     value

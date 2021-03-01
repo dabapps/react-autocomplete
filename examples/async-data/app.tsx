@@ -1,5 +1,7 @@
-import React from 'react';
-import DOM from 'react-dom';
+import * as React from 'react';
+// eslint-disable-next-line no-duplicate-imports
+import type { ChangeEvent } from 'react';
+import * as ReactDOM from 'react-dom';
 
 import Autocomplete from '../../lib';
 import { getStates, fakeRequest } from '../../lib/utils';
@@ -10,7 +12,7 @@ class App extends React.Component {
     unitedStates: getStates(),
   };
 
-  requestTimer = null;
+  requestTimer: null | number = null;
 
   render() {
     return (
@@ -35,9 +37,13 @@ class App extends React.Component {
             // or you could reset it to a default list again
             // this.setState({ unitedStates: getStates() })
           }}
-          onChange={(event, value) => {
+          onChange={(_event: ChangeEvent<HTMLInputElement>, value) => {
             this.setState({ value });
-            clearTimeout(this.requestTimer);
+
+            if (typeof this.requestTimer === 'number') {
+              window.clearTimeout(this.requestTimer);
+            }
+
             this.requestTimer = fakeRequest(value, (items) => {
               this.setState({ unitedStates: items });
             });
@@ -57,8 +63,4 @@ class App extends React.Component {
   }
 }
 
-DOM.render(<App />, document.getElementById('container'));
-
-if (module.hot) {
-  module.hot.accept();
-}
+ReactDOM.render(<App />, document.getElementById('container'));

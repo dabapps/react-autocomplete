@@ -1,11 +1,23 @@
-import React from 'react';
-import DOM from 'react-dom';
+import * as React from 'react';
+// eslint-disable-next-line no-duplicate-imports
+import type { ChangeEvent } from 'react';
+import * as ReactDOM from 'react-dom';
 
 import Autocomplete from '../../lib';
-import { fakeCategorizedRequest } from '../../lib/utils';
+import { fakeCategorizedRequest, USState, Header } from '../../lib/utils';
 
-class App extends React.Component {
-  constructor(props) {
+type Props = Record<string, never>;
+
+interface State {
+  value: string;
+  unitedStates: readonly (USState | Header)[];
+  loading: boolean;
+}
+
+class App extends React.Component<Props, State> {
+  requestTimer: number | null = null;
+
+  constructor(props: Props) {
     super(props);
     this.state = {
       value: '',
@@ -29,19 +41,23 @@ class App extends React.Component {
           value={this.state.value}
           inputProps={{ id: 'states-autocomplete' }}
           items={this.state.unitedStates}
-          getItemValue={(item) => item.name}
+          getItemValue={(item) => ('header' in item ? '' : item.name)}
           onSelect={(value, state) =>
             this.setState({ value, unitedStates: [state] })
           }
-          onChange={(event, value) => {
+          onChange={(_event: ChangeEvent<HTMLInputElement>, value) => {
             this.setState({ value, loading: true, unitedStates: [] });
-            clearTimeout(this.requestTimer);
+
+            if (typeof this.requestTimer === 'number') {
+              window.clearTimeout(this.requestTimer);
+            }
+
             this.requestTimer = fakeCategorizedRequest(value, (items) => {
               this.setState({ unitedStates: items, loading: false });
             });
           }}
           renderItem={(item, isHighlighted) =>
-            item.header ? (
+            'header' in item ? (
               <div className="item item-header" key={item.header}>
                 {item.header}
               </div>
@@ -67,15 +83,11 @@ class App extends React.Component {
               )}
             </div>
           )}
-          isItemSelectable={(item) => !item.header}
+          isItemSelectable={(item) => !('header' in item)}
         />
       </div>
     );
   }
 }
 
-DOM.render(<App />, document.getElementById('container'));
-
-if (module.hot) {
-  module.hot.accept();
-}
+ReactDOM.render(<App />, document.getElementById('container'));
