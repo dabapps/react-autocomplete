@@ -389,7 +389,7 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
   maybeAutoCompleteText = (
     state: State,
     props: Props<T>
-  ): { highlightedIndex: number | null } => {
+  ): Pick<State, 'highlightedIndex'> => {
     const { highlightedIndex } = state;
     const { value, getItemValue } = props;
     let index = highlightedIndex === null ? 0 : highlightedIndex;
