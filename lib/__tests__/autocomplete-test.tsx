@@ -38,13 +38,13 @@ describe('Autocomplete acceptance tests', () => {
 
   it('should display autocomplete menu when input has focus', () => {
     expect(autocompleteWrapper.state('isOpen')).toBe(false);
-    expect(autocompleteWrapper.instance().refs.menu).toBe(undefined);
+    expect(autocompleteWrapper.instance()['myRefs'].menu).toBe(undefined);
 
     // Display autocomplete menu upon input focus
     autocompleteInputWrapper.simulate('focus');
 
     expect(autocompleteWrapper.state('isOpen')).toBe(true);
-    expect(autocompleteWrapper.instance().refs.menu).not.toBe(undefined);
+    expect(autocompleteWrapper.instance()['myRefs'].menu).not.toBe(undefined);
   });
 
   it('should show results when value is a partial match', () => {
@@ -62,7 +62,7 @@ describe('Autocomplete acceptance tests', () => {
     autocompleteInputWrapper.simulate('blur');
 
     expect(autocompleteWrapper.state('isOpen')).toBe(false);
-    expect(autocompleteWrapper.instance().refs.menu).toBe(null);
+    expect(autocompleteWrapper.instance()['myRefs'].menu).toBe(null);
   });
 
   it('should highlight top match when `props.value` changes', () => {
