@@ -33,7 +33,7 @@ function getScrollOffset(): ScrollOffset {
   };
 }
 
-interface State {
+export interface State {
   isOpen: boolean;
   highlightedIndex: number | null;
   menuLeft?: number;
@@ -251,7 +251,11 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
     ): void {
       event.preventDefault();
       const items = this.getFilteredItems(this.props);
-      if (!items.length) return;
+
+      if (!items.length) {
+        return;
+      }
+
       const { highlightedIndex } = this.state;
       let index = highlightedIndex === null ? -1 : highlightedIndex;
       for (let i = 0; i < items.length; i++) {
