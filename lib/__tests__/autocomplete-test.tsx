@@ -921,8 +921,9 @@ describe('Autocomplete isItemSelectable', () => {
   const autocompleteWrapper = mount<Autocomplete<State>, Props<USState>, State>(
     AutocompleteComponentJSX({
       open: true,
-      items: getCategorizedStates(),
-      isItemSelectable: (item) => !item.header,
+      // FIXME: This type cast is wrong
+      items: getCategorizedStates() as readonly USState[],
+      isItemSelectable: (item) => !('header' in item),
     })
   );
 
