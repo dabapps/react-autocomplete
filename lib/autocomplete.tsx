@@ -12,17 +12,6 @@ import scrollIntoView from 'dom-scroll-into-view';
 
 import type { DefaultProps, InputProps, Props } from './types';
 
-const IMPERATIVE_API = [
-  'blur',
-  'checkValidity',
-  'click',
-  'focus',
-  'select',
-  'setCustomValidity',
-  'setSelectionRange',
-  'setRangeText',
-] as const;
-
 function getScrollOffset(): ScrollOffset {
   return {
     x:
@@ -106,6 +95,73 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
   private _scrollOffset: ScrollOffset | null = null;
   private myRefs: Record<string, HTMLElement | null> = {};
 
+  public blur = (
+    ...args: Parameters<HTMLInputElement['blur']>
+  ): ReturnType<HTMLInputElement['blur']> => {
+    const { input } = this.myRefs;
+    if (input instanceof HTMLInputElement) {
+      input.blur(...args);
+    }
+  };
+  public checkValidity = (
+    ...args: Parameters<HTMLInputElement['checkValidity']>
+  ): ReturnType<HTMLInputElement['checkValidity']> | null => {
+    const { input } = this.myRefs;
+    if (input instanceof HTMLInputElement) {
+      return input.checkValidity(...args);
+    }
+
+    return null;
+  };
+  public click = (
+    ...args: Parameters<HTMLInputElement['click']>
+  ): ReturnType<HTMLInputElement['click']> => {
+    const { input } = this.myRefs;
+    if (input instanceof HTMLInputElement) {
+      input.click(...args);
+    }
+  };
+  public focus = (
+    ...args: Parameters<HTMLInputElement['focus']>
+  ): ReturnType<HTMLInputElement['focus']> => {
+    const { input } = this.myRefs;
+    if (input instanceof HTMLInputElement) {
+      input.focus(...args);
+    }
+  };
+  public select = (
+    ...args: Parameters<HTMLInputElement['select']>
+  ): ReturnType<HTMLInputElement['select']> => {
+    const { input } = this.myRefs;
+    if (input instanceof HTMLInputElement) {
+      input.select(...args);
+    }
+  };
+  public setCustomValidity = (
+    ...args: Parameters<HTMLInputElement['setCustomValidity']>
+  ): ReturnType<HTMLInputElement['setCustomValidity']> => {
+    const { input } = this.myRefs;
+    if (input instanceof HTMLInputElement) {
+      input.setCustomValidity(...args);
+    }
+  };
+  public setSelectionRange = (
+    ...args: Parameters<HTMLInputElement['setSelectionRange']>
+  ): ReturnType<HTMLInputElement['setSelectionRange']> => {
+    const { input } = this.myRefs;
+    if (input instanceof HTMLInputElement) {
+      input.setSelectionRange(...args);
+    }
+  };
+  public setRangeText = (
+    ...args: Parameters<HTMLInputElement['setRangeText']>
+  ): ReturnType<HTMLInputElement['setRangeText']> => {
+    const { input } = this.myRefs;
+    if (input instanceof HTMLInputElement) {
+      input.setRangeText(...args);
+    }
+  };
+
   componentDidMount(): void {
     if (this.isOpen()) {
       this.setMenuPositions();
@@ -149,11 +205,8 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
     this._scrollTimer = null;
   }
 
-  exposeAPI = (el: HTMLInputElement | null): void => {
+  storeInput = (el: HTMLInputElement | null): void => {
     this.myRefs.input = el;
-    IMPERATIVE_API.forEach(
-      (ev) => (this[ev] = el && el[ev] && el[ev].bind(el))
-    );
   };
 
   maybeScrollItemIntoView(): void {
@@ -552,7 +605,7 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
           'aria-autocomplete': 'list',
           'aria-expanded': open,
           autoComplete: 'off',
-          ref: this.exposeAPI,
+          ref: this.storeInput,
           onFocus: this.handleInputFocus,
           onBlur: this.handleInputBlur,
           onChange: this.handleChange,
