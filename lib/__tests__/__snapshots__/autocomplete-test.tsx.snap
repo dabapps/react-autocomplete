@@ -5,7 +5,7 @@ Object {
   "aria-autocomplete": "list",
   "aria-expanded": false,
   "autoComplete": "off",
-  "foo": "bar",
+  "name": "test-name",
   "onBlur": [Function],
   "onChange": [Function],
   "onClick": [Function],
@@ -30,7 +30,7 @@ exports[`Autocomplete.props.renderInput should be invoked in \`render\` to creat
       aria-autocomplete="list"
       aria-expanded={false}
       autoComplete="on"
-      foo="bar"
+      name="test-name"
       onBlur={[Function]}
       onChange={[Function]}
       onClick={[Function]}
