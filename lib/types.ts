@@ -1,4 +1,9 @@
-import { ChangeEvent, HTMLAttributes, ReactNode } from 'react';
+import type {
+  ChangeEvent,
+  CSSProperties,
+  ReactElement,
+  HTMLProps,
+} from 'react';
 
 export interface Props<T> {
   /**
@@ -60,8 +65,8 @@ export interface Props<T> {
   renderItem: (
     item: T,
     isHighlighted: boolean,
-    styles: Partial<CSSStyleDeclaration>
-  ) => ReactNode;
+    styles: Partial<CSSProperties>
+  ) => ReactElement;
   /**
    * Arguments: `items: Array<Any>, value: String, styles: Object`
    *
@@ -72,16 +77,16 @@ export interface Props<T> {
    * and the width of the dropdown menu.
    */
   renderMenu?: (
-    items: readonly T[],
+    items: readonly ReactElement[],
     value: string,
-    styles: Partial<CSSStyleDeclaration>
-  ) => ReactNode;
+    styles: Partial<CSSProperties>
+  ) => ReactElement;
   /**
    * Styles that are applied to the dropdown menu in the default `renderMenu`
    * implementation. If you override `renderMenu` and you want to use
    * `menuStyle` you must manually apply them (`this.props.menuStyle`).
    */
-  menuStyle?: Partial<CSSStyleDeclaration>;
+  menuStyle?: Partial<CSSProperties>;
   /**
    * Arguments: `props: Object`
    *
@@ -91,7 +96,7 @@ export interface Props<T> {
    * apply `props.ref` and all `props.on<event>` event handlers. Failing to do
    * this will cause `Autocomplete` to behave unexpectedly.
    */
-  renderInput?: (props: InputProps) => ReactNode;
+  renderInput?: (props: InputProps) => ReactElement;
   /**
    * Props passed to `props.renderInput`. By default these props will be
    * applied to the `<input />` element rendered by `Autocomplete`, unless you
@@ -101,21 +106,18 @@ export interface Props<T> {
    * aria-autocomplete. `inputProps` is commonly used for (but not limited to)
    * placeholder, event handlers (onFocus, onBlur, etc.), autoFocus, etc..
    */
-  inputProps?: Omit<
-    InputProps,
-    'value' | 'autoCOmplete' | 'role' | 'aria-autocomplete'
-  >;
+  inputProps?: InputProps;
   /**
    * Props that are applied to the element which wraps the `<input />` and
    * dropdown menu elements rendered by `Autocomplete`.
    */
-  wrapperProps?: HTMLAttributes<HTMLDivElement>;
+  wrapperProps?: HTMLProps<HTMLDivElement>;
   /**
    * This is a shorthand for `wrapperProps={{ style: <your styles> }}`.
    * Note that `wrapperStyle` is applied before `wrapperProps`, so the latter
    * will win if it contains a `style` entry.
    */
-  wrapperStyle?: Partial<CSSStyleDeclaration>;
+  wrapperStyle?: Partial<CSSProperties>;
   /**
    * Whether or not to automatically highlight the top match in the dropdown
    * menu.
@@ -143,4 +145,21 @@ export interface Props<T> {
   debug?: boolean;
 }
 
-export type InputProps = HTMLAttributes<HTMLInputElement>;
+export type DefaultProps = Pick<
+  Props<unknown>,
+  | 'value'
+  | 'wrapperProps'
+  | 'wrapperStyle'
+  | 'inputProps'
+  | 'renderInput'
+  | 'onChange'
+  | 'onSelect'
+  | 'isItemSelectable'
+  | 'renderMenu'
+  | 'menuStyle'
+  | 'autoHighlight'
+  | 'selectOnBlur'
+  | 'onMenuVisibilityChange'
+>;
+
+export type InputProps = HTMLProps<HTMLInputElement>;
