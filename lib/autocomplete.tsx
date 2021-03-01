@@ -5,6 +5,7 @@ import type {
   FocusEvent,
   ChangeEvent,
   KeyboardEvent,
+  ReactElement,
 } from 'react';
 import { findDOMNode } from 'react-dom';
 import scrollIntoView from 'dom-scroll-into-view';
@@ -73,7 +74,7 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
       return true;
     },
     renderMenu(
-      items: readonly unknown[],
+      items: readonly ReactElement[],
       _value: string,
       style: Partial<CSSProperties>
     ) {
