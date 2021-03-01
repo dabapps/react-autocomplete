@@ -394,20 +394,20 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
     const { value, getItemValue } = props;
     let index = highlightedIndex === null ? 0 : highlightedIndex;
     const items = this.getFilteredItems(props);
+
     for (let i = 0; i < items.length; i++) {
       const item = items[index];
-      if (item) {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        if (props.isItemSelectable!(item)) {
-          break;
-        }
-
-        index = (index + 1) % items.length;
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      if (item && props.isItemSelectable!(item)) {
+        break;
       }
+
+      index = (index + 1) % items.length;
     }
     const item = items[index];
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const matchedItem = item && props.isItemSelectable!(item) ? item : null;
+
     if (value !== '' && matchedItem) {
       const itemValue = getItemValue(matchedItem);
       const itemValueDoesMatch =
