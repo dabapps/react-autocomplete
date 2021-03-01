@@ -10,7 +10,7 @@ import {
   matchStateToTermWithHeaders,
   USState,
 } from '../utils';
-import { Props } from '../types';
+import { InputProps, Props } from '../types';
 
 function AutocompleteComponentJSX(extraProps: Partial<Props<USState>>) {
   return (
@@ -252,9 +252,10 @@ describe('Autocomplete acceptance tests', () => {
     const handlers = ['Focus', 'Blur', 'KeyDown', 'KeyUp', 'Click'];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const spies: jest.Mock<any, any>[] = [];
-    const inputProps = {};
+    const inputProps: InputProps = {};
     handlers.forEach(
-      (handler, i) => (inputProps[`on${handler}`] = spies[i] = jest.fn())
+      (handler, i) =>
+        (inputProps[`on${handler}` as keyof InputProps] = spies[i] = jest.fn())
     );
     const tree = mount<Autocomplete<State>, Props<USState>, State>(
       AutocompleteComponentJSX({ inputProps })
