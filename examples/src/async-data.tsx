@@ -2,8 +2,8 @@ import * as React from 'react';
 // eslint-disable-next-line no-duplicate-imports
 import type { ChangeEvent, ReactElement } from 'react';
 
-import Autocomplete from '../lib';
-import { getStates, fakeRequest } from '../lib/utils';
+import Autocomplete from '../../lib';
+import { getStates, fakeRequest } from '../../lib/utils';
 
 class App extends React.Component {
   state = {

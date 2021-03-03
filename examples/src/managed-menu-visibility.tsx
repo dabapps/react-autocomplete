@@ -2,8 +2,8 @@ import * as React from 'react';
 // eslint-disable-next-line no-duplicate-imports
 import type { ReactElement } from 'react';
 
-import Autocomplete from '../lib';
-import { getStates, matchStateToTerm } from '../lib/utils';
+import Autocomplete from '../../lib';
+import { getStates, matchStateToTerm } from '../../lib/utils';
 
 const STATES = getStates();
 

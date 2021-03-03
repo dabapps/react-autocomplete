@@ -2,8 +2,8 @@ import * as React from 'react';
 // eslint-disable-next-line no-duplicate-imports
 import type { ChangeEvent, ReactElement } from 'react';
 
-import { getStates, matchStateToTerm, sortStates } from '../lib/utils';
-import Autocomplete from '../lib';
+import { getStates, matchStateToTerm, sortStates } from '../../lib/utils';
+import Autocomplete from '../../lib';
 
 class App extends React.Component {
   state = { value: 'Ma' };

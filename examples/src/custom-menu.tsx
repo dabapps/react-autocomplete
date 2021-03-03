@@ -2,8 +2,8 @@ import * as React from 'react';
 // eslint-disable-next-line no-duplicate-imports
 import type { ChangeEvent, ReactElement } from 'react';
 
-import Autocomplete from '../lib';
-import { fakeCategorizedRequest, USState, Header } from '../lib/utils';
+import Autocomplete from '../../lib';
+import { fakeCategorizedRequest, USState, Header } from '../../lib/utils';
 
 type Props = Record<string, never>;
 
