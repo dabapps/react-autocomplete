@@ -9,12 +9,15 @@ import {
   getCategorizedStates,
   matchStateToTermWithHeaders,
   USState,
+  Header,
 } from '../utils';
 import { InputProps, Props } from '../types';
 
-function AutocompleteComponentJSX(extraProps: Partial<Props<USState>>) {
+type USStateProps = Props<USState, () => boolean, () => boolean>;
+
+function AutocompleteComponentJSX(extraProps: Partial<USStateProps>) {
   return (
-    <Autocomplete<USState>
+    <Autocomplete
       getItemValue={(item) => item.name}
       items={getStates()}
       renderItem={(item) => <div key={item.abbr}>{item.name}</div>}
@@ -33,9 +36,11 @@ afterEach(() => {
 });
 
 describe('Autocomplete acceptance tests', () => {
-  const autocompleteWrapper = mount<Autocomplete<State>, Props<USState>, State>(
-    AutocompleteComponentJSX({})
-  );
+  const autocompleteWrapper = mount<
+    Autocomplete<USState, () => boolean, () => boolean>,
+    USStateProps,
+    State
+  >(AutocompleteComponentJSX({}));
   const autocompleteInputWrapper = autocompleteWrapper.find('input');
 
   it('should display autocomplete menu when input has focus', () => {
@@ -68,16 +73,22 @@ describe('Autocomplete acceptance tests', () => {
   });
 
   it('should highlight top match when `props.value` changes', () => {
-    const tree = mount<Autocomplete<State>, Props<USState>, State>(
-      AutocompleteComponentJSX({})
-    );
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(AutocompleteComponentJSX({}));
     expect(tree.state('highlightedIndex')).toEqual(null);
     tree.setProps({ value: 'a' });
     expect(tree.state('highlightedIndex')).toEqual(0);
   });
 
   it('should highlight top match when an item appears in `props.items` that matches `props.value`', () => {
-    const tree = mount<Autocomplete<State>, Props<USState>, State>(
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(
       AutocompleteComponentJSX({
         items: [],
       })
@@ -91,7 +102,11 @@ describe('Autocomplete acceptance tests', () => {
   });
 
   it('should not highlight top match when `props.autoHighlight=false`', () => {
-    const tree = mount<Autocomplete<State>, Props<USState>, State>(
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(
       AutocompleteComponentJSX({
         autoHighlight: false,
       })
@@ -103,9 +118,11 @@ describe('Autocomplete acceptance tests', () => {
   });
 
   it('should reset `state.highlightedIndex` when `props.value` becomes an empty string`', () => {
-    const tree = mount<Autocomplete<State>, Props<USState>, State>(
-      AutocompleteComponentJSX({})
-    );
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(AutocompleteComponentJSX({}));
     tree.setProps({ value: 'a' });
     expect(tree.state('highlightedIndex')).toEqual(0);
     tree.setProps({ value: '' });
@@ -113,7 +130,11 @@ describe('Autocomplete acceptance tests', () => {
   });
 
   it("should reset `state.highlightedIndex` if `props.value` doesn't match anything", () => {
-    const tree = mount<Autocomplete<State>, Props<USState>, State>(
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(
       AutocompleteComponentJSX({
         shouldItemRender() {
           return true;
@@ -127,7 +148,11 @@ describe('Autocomplete acceptance tests', () => {
   });
 
   it('should preserve `state.highlightedIndex` when `props.value` changes as long as it still matches', () => {
-    const tree = mount<Autocomplete<State>, Props<USState>, State>(
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(
       AutocompleteComponentJSX({
         value: 'h',
         shouldItemRender() {
@@ -150,7 +175,11 @@ describe('Autocomplete acceptance tests', () => {
   });
 
   it('should preserve `state.highlightedIndex` when it is within `props.items` range and `props.value` is unchanged`', () => {
-    const tree = mount<Autocomplete<State>, Props<USState>, State>(
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(
       AutocompleteComponentJSX({
         value: 'a',
       })
@@ -161,9 +190,11 @@ describe('Autocomplete acceptance tests', () => {
   });
 
   it('should preserve the matched item even when its previous place was outside of the new range', () => {
-    const tree = mount<Autocomplete<State>, Props<USState>, State>(
-      AutocompleteComponentJSX({})
-    );
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(AutocompleteComponentJSX({}));
     jest.spyOn(tree.instance(), 'maybeAutoCompleteText');
     tree.setProps({ value: 'ma' });
     tree.setState({ highlightedIndex: 3 }); // Massachusetts
@@ -173,9 +204,11 @@ describe('Autocomplete acceptance tests', () => {
   });
 
   it('should display menu based on `props.open` when provided', () => {
-    const tree = mount<Autocomplete<State>, Props<USState>, State>(
-      AutocompleteComponentJSX({})
-    );
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(AutocompleteComponentJSX({}));
 
     expect(tree.state('isOpen')).toBe(false);
     expect(tree.children().first().children('div').length).toBe(0);
@@ -191,7 +224,11 @@ describe('Autocomplete acceptance tests', () => {
   it('should set menu positions on initial render if the menu is visible', () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const menuSpy = jest.fn((..._args: [unknown, unknown, unknown]) => <div />);
-    mount<Autocomplete<State>, Props<USState>, State>(
+    mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(
       AutocompleteComponentJSX({
         open: true,
         renderMenu: menuSpy,
@@ -215,7 +252,11 @@ describe('Autocomplete acceptance tests', () => {
   it('should set menu positions when the menu is forced open via props.open', () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const menuSpy = jest.fn((..._args: [unknown, unknown, unknown]) => <div />);
-    const tree = mount<Autocomplete<State>, Props<USState>, State>(
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(
       AutocompleteComponentJSX({
         renderMenu: menuSpy,
       })
@@ -237,9 +278,11 @@ describe('Autocomplete acceptance tests', () => {
 
   it('should invoke `props.inMenuVisibilityChange` when `state.isOpen` changes', () => {
     const onMenuVisibilityChange = jest.fn();
-    const tree = mount<Autocomplete<State>, Props<USState>, State>(
-      AutocompleteComponentJSX({ onMenuVisibilityChange })
-    );
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(AutocompleteComponentJSX({ onMenuVisibilityChange }));
     expect(tree.state('isOpen')).toBe(false);
     expect(onMenuVisibilityChange).not.toHaveBeenCalled();
     tree.setState({ isOpen: true });
@@ -259,9 +302,11 @@ describe('Autocomplete acceptance tests', () => {
       (handler, i) =>
         (inputProps[`on${handler}` as keyof InputProps] = spies[i] = jest.fn())
     );
-    const tree = mount<Autocomplete<State>, Props<USState>, State>(
-      AutocompleteComponentJSX({ inputProps })
-    );
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(AutocompleteComponentJSX({ inputProps }));
     handlers.forEach((handler, i) => {
       tree.find('input').simulate(handler.toLowerCase());
       expect(spies[i]).toHaveBeenCalledTimes(1);
@@ -273,7 +318,11 @@ describe('Autocomplete acceptance tests', () => {
     const onBlurSpy = jest.fn();
     const onFocusSpy = jest.fn();
     const onSelectSpy = jest.fn();
-    const tree = mount<Autocomplete<State>, Props<USState>, State>(
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(
       AutocompleteComponentJSX({
         inputProps: {
           onBlur: onBlurSpy,
@@ -293,7 +342,11 @@ describe('Autocomplete acceptance tests', () => {
 
   it('should select value on blur when selectOnBlur=true and highlightedIndex is not null', () => {
     const onSelect = jest.fn();
-    const tree = mount<Autocomplete<State>, Props<USState>, State>(
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(
       AutocompleteComponentJSX({
         selectOnBlur: true,
         onSelect,
@@ -309,7 +362,11 @@ describe('Autocomplete acceptance tests', () => {
 
   it('should not select value on blur when selectOnBlur=false', () => {
     const onSelect = jest.fn();
-    const tree = mount<Autocomplete<State>, Props<USState>, State>(
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(
       AutocompleteComponentJSX({
         selectOnBlur: false,
         onSelect,
@@ -324,7 +381,11 @@ describe('Autocomplete acceptance tests', () => {
 
   it('should not select value on blur when selectOnBlur=true and highlightedIndex=null ', () => {
     const onSelect = jest.fn();
-    const tree = mount<Autocomplete<State>, Props<USState>, State>(
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(
       AutocompleteComponentJSX({
         selectOnBlur: false,
         onSelect,
@@ -340,9 +401,11 @@ describe('Autocomplete acceptance tests', () => {
 
 describe('focus management', () => {
   it('should preserve focus when clicking on a menu item', () => {
-    const tree = mount<Autocomplete<State>, Props<USState>, State>(
-      AutocompleteComponentJSX({})
-    );
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(AutocompleteComponentJSX({}));
     const ac = tree.instance();
     const input = tree.find('input');
     input.simulate('focus');
@@ -363,9 +426,11 @@ describe('focus management', () => {
   });
 
   it('...even if `input.focus()` happens async (IE)', () => {
-    const tree = mount<Autocomplete<State>, Props<USState>, State>(
-      AutocompleteComponentJSX({})
-    );
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(AutocompleteComponentJSX({}));
     const ac = tree.instance();
     const input = tree.find('input');
     input.simulate('focus');
@@ -389,7 +454,11 @@ describe('focus management', () => {
   });
 
   it('should preserve focus when clicking on non-item elements in the menu', () => {
-    const tree = mount<Autocomplete<State>, Props<USState>, State>(
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(
       AutocompleteComponentJSX({
         renderMenu: (items) => (
           <div>
@@ -419,9 +488,11 @@ describe('focus management', () => {
   });
 
   it('should save scroll position on blur', () => {
-    const tree = mount<Autocomplete<State>, Props<USState>, State>(
-      AutocompleteComponentJSX({})
-    );
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(AutocompleteComponentJSX({}));
     const ac = tree.instance();
     expect(ac['_scrollOffset']).toBe(null);
     ac['_ignoreBlur'] = true;
@@ -433,9 +504,11 @@ describe('focus management', () => {
 
   it('should restore scroll position on focus reset', () => {
     jest.spyOn(window, 'scrollTo');
-    const tree = mount<Autocomplete<State>, Props<USState>, State>(
-      AutocompleteComponentJSX({})
-    );
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(AutocompleteComponentJSX({}));
     const ac = tree.instance();
     ac['_ignoreFocus'] = true;
     ac['_scrollOffset'] = { x: 1, y: 2 };
@@ -456,9 +529,11 @@ describe('focus management', () => {
   });
 
   it('should clear any pending scroll timers on unmount', () => {
-    const tree = mount<Autocomplete<State>, Props<USState>, State>(
-      AutocompleteComponentJSX({})
-    );
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(AutocompleteComponentJSX({}));
     const ac = tree.instance();
     ac['_scrollTimer'] = 42;
     tree.unmount();
@@ -471,9 +546,11 @@ describe('focus management', () => {
 // Event handler unit tests
 
 describe('Autocomplete keyPress-><character> event handlers', () => {
-  const autocompleteWrapper = mount<Autocomplete<State>, Props<USState>, State>(
-    AutocompleteComponentJSX({})
-  );
+  const autocompleteWrapper = mount<
+    Autocomplete<USState, () => boolean, () => boolean>,
+    USStateProps,
+    State
+  >(AutocompleteComponentJSX({}));
   const autocompleteInputWrapper = autocompleteWrapper.find('input').first();
 
   it('should pass updated `input.value` to `onChange` and replace with `props.value`', (done) => {
@@ -500,9 +577,11 @@ describe('Autocomplete keyPress-><character> event handlers', () => {
 });
 
 describe('Autocomplete keyDown->ArrowDown event handlers', () => {
-  const autocompleteWrapper = mount<Autocomplete<State>, Props<USState>, State>(
-    AutocompleteComponentJSX({})
-  );
+  const autocompleteWrapper = mount<
+    Autocomplete<USState, () => boolean, () => boolean>,
+    USStateProps,
+    State
+  >(AutocompleteComponentJSX({}));
   const autocompleteInputWrapper = autocompleteWrapper.find('input');
 
   it('should highlight the 1st item in the menu when none is selected', () => {
@@ -559,7 +638,9 @@ describe('Autocomplete keyDown->ArrowDown event handlers', () => {
       isOpen: true,
       highlightedIndex: null,
     });
-    autocompleteWrapper.setProps({ isItemSelectable: () => false });
+    autocompleteWrapper.setProps({
+      isItemSelectable: () => false,
+    });
 
     autocompleteInputWrapper.simulate('keyDown', {
       key: 'ArrowDown',
@@ -572,9 +653,11 @@ describe('Autocomplete keyDown->ArrowDown event handlers', () => {
 });
 
 describe('Autocomplete keyDown->ArrowUp event handlers', () => {
-  const autocompleteWrapper = mount<Autocomplete<State>, Props<USState>, State>(
-    AutocompleteComponentJSX({})
-  );
+  const autocompleteWrapper = mount<
+    Autocomplete<USState, () => boolean, () => boolean>,
+    USStateProps,
+    State
+  >(AutocompleteComponentJSX({}));
   const autocompleteInputWrapper = autocompleteWrapper.find('input');
 
   it('should highlight the last item in the menu when none is selected', () => {
@@ -633,7 +716,9 @@ describe('Autocomplete keyDown->ArrowUp event handlers', () => {
       isOpen: true,
       highlightedIndex: null,
     });
-    autocompleteWrapper.setProps({ isItemSelectable: () => false });
+    autocompleteWrapper.setProps({
+      isItemSelectable: () => false,
+    });
 
     autocompleteInputWrapper.simulate('keyDown', {
       key: 'ArrowUp',
@@ -646,9 +731,11 @@ describe('Autocomplete keyDown->ArrowUp event handlers', () => {
 });
 
 describe('Autocomplete keyDown->Enter event handlers', () => {
-  const autocompleteWrapper = mount<Autocomplete<State>, Props<USState>, State>(
-    AutocompleteComponentJSX({})
-  );
+  const autocompleteWrapper = mount<
+    Autocomplete<USState, () => boolean, () => boolean>,
+    USStateProps,
+    State
+  >(AutocompleteComponentJSX({}));
   const autocompleteInputWrapper = autocompleteWrapper.find('input');
 
   it('should do nothing if the menu is closed', () => {
@@ -725,7 +812,11 @@ describe('Autocomplete keyDown->Enter event handlers', () => {
 
   it('should do nothing if `keyCode` is not 13', () => {
     const onSelect = jest.fn();
-    const tree = mount<Autocomplete<State>, Props<USState>, State>(
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(
       AutocompleteComponentJSX({
         onSelect,
       })
@@ -742,9 +833,11 @@ describe('Autocomplete keyDown->Enter event handlers', () => {
 });
 
 describe('Autocomplete keyDown->Escape event handlers', () => {
-  const autocompleteWrapper = mount<Autocomplete<State>, Props<USState>, State>(
-    AutocompleteComponentJSX({})
-  );
+  const autocompleteWrapper = mount<
+    Autocomplete<USState, () => boolean, () => boolean>,
+    USStateProps,
+    State
+  >(AutocompleteComponentJSX({}));
   const autocompleteInputWrapper = autocompleteWrapper.find('input');
 
   it('should unhighlight any selected menu item + close the menu', () => {
@@ -764,9 +857,11 @@ describe('Autocomplete keyDown->Escape event handlers', () => {
 
 describe('Autocomplete keyDown', () => {
   it("should not clear highlightedIndex for keys that don't modify `input.value`", () => {
-    const tree = mount<Autocomplete<State>, Props<USState>, State>(
-      AutocompleteComponentJSX({ open: true })
-    );
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(AutocompleteComponentJSX({ open: true }));
     const input = tree.find('input');
     tree.setProps({ value: 'a' });
     expect(tree.state('highlightedIndex')).toBe(0);
@@ -806,9 +901,11 @@ describe('Autocomplete keyDown', () => {
 });
 
 describe('Autocomplete mouse event handlers', () => {
-  const autocompleteWrapper = mount<Autocomplete<State>, Props<USState>, State>(
-    AutocompleteComponentJSX({})
-  );
+  const autocompleteWrapper = mount<
+    Autocomplete<USState, () => boolean, () => boolean>,
+    USStateProps,
+    State
+  >(AutocompleteComponentJSX({}));
   const autocompleteInputWrapper = autocompleteWrapper.find('input').first();
 
   it('should open menu if it is closed when clicking in the input', () => {
@@ -818,9 +915,11 @@ describe('Autocomplete mouse event handlers', () => {
   });
 
   it('should set `highlightedIndex` when hovering over items in the menu', () => {
-    const tree = mount<Autocomplete<State>, Props<USState>, State>(
-      AutocompleteComponentJSX({ open: true })
-    );
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(AutocompleteComponentJSX({ open: true }));
     const items = tree.find('div > div > div');
     expect(tree.state('highlightedIndex')).toBe(null);
     items.at(0).simulate('mouseEnter');
@@ -831,7 +930,11 @@ describe('Autocomplete mouse event handlers', () => {
 
   it('should select an item when clicking on an item in the menu', () => {
     let selected;
-    const tree = mount<Autocomplete<State>, Props<USState>, State>(
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(
       AutocompleteComponentJSX({
         open: true,
         onSelect(_value, item) {
@@ -871,9 +974,11 @@ describe('Autocomplete.props.renderInput', () => {
 
 // Component method unit tests
 describe('Autocomplete#renderMenu', () => {
-  const autocompleteWrapper = mount<Autocomplete<State>, Props<USState>, State>(
-    AutocompleteComponentJSX({})
-  );
+  const autocompleteWrapper = mount<
+    Autocomplete<USState, () => boolean, () => boolean>,
+    USStateProps,
+    State
+  >(AutocompleteComponentJSX({}));
 
   it('should return a <div ref="menu"> ReactComponent when renderMenu() is called', () => {
     //autocompleteInputWrapper.simulate('change', { target: { value: 'Ar' } })
@@ -903,7 +1008,11 @@ describe('Autocomplete#renderMenu', () => {
         return <div>{this.props.item.name}</div>;
       }
     }
-    const wrapper = mount<Autocomplete<State>, Props<USState>, State>(
+    const wrapper = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(
       AutocompleteComponentJSX({
         renderMenu(items) {
           return <Menu items={items} />;
@@ -920,13 +1029,31 @@ describe('Autocomplete#renderMenu', () => {
 });
 
 describe('Autocomplete isItemSelectable', () => {
-  const autocompleteWrapper = mount<Autocomplete<State>, Props<USState>, State>(
-    AutocompleteComponentJSX({
-      open: true,
-      // FIXME: This type cast is wrong
-      items: getCategorizedStates() as readonly USState[],
-      isItemSelectable: (item) => !('header' in item),
-    })
+  const autocompleteWrapper = mount<
+    Autocomplete<
+      USState,
+      () => boolean,
+      (item: USState | Header) => item is USState
+    >,
+    Props<USState, () => boolean, (item: USState | Header) => item is USState>,
+    State
+  >(
+    <Autocomplete
+      getItemValue={(item) => item.name}
+      renderItem={(item) =>
+        'header' in item ? (
+          <div>{item.header}</div>
+        ) : (
+          <div key={item.abbr}>{item.name}</div>
+        )
+      }
+      shouldItemRender={matchStateToTermWithHeaders}
+      open
+      items={getCategorizedStates()}
+      isItemSelectable={(item: USState | Header): item is USState =>
+        !('header' in item)
+      }
+    />
   );
 
   it('should automatically highlight the first selectable item', () => {
@@ -957,12 +1084,13 @@ describe('Public imperative API', () => {
   it('should expose select APIs available on HTMLInputElement', () => {
     const target = document.createElement('div');
     document.body.appendChild(target);
-    const ac = mount<Autocomplete<State>, Props<USState>, State>(
-      AutocompleteComponentJSX({ value: 'foo' }),
-      {
-        attachTo: target,
-      }
-    );
+    const ac = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(AutocompleteComponentJSX({ value: 'foo' }), {
+      attachTo: target,
+    });
     const input = ac.find('input').first().getDOMNode<HTMLInputElement>();
     const instance = ac.instance();
 
