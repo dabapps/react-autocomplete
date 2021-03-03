@@ -18,10 +18,11 @@ export function matchStateToTermWithHeaders(
   state: USState | Header,
   value: string
 ): boolean {
-  return 'header' in state
-    ? Boolean(state.header)
-    : state.name.toLowerCase().indexOf(value.toLowerCase()) !== -1 ||
-        state.abbr.toLowerCase().indexOf(value.toLowerCase()) !== -1;
+  return (
+    'header' in state ||
+    state.name.toLowerCase().indexOf(value.toLowerCase()) !== -1 ||
+    state.abbr.toLowerCase().indexOf(value.toLowerCase()) !== -1
+  );
 }
 
 /**
