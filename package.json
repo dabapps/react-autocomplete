@@ -57,7 +57,7 @@
     "react-dom": "^15.5.4",
     "react-test-renderer": "^15.5.4",
     "ts-jest": "^26.5.2",
-    "typescript": "^4.2.2"
+    "typescript": "^4.1.5"
   },
   "tags": [
     "react",
