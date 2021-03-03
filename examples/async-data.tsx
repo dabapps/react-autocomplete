@@ -1,10 +1,9 @@
 import * as React from 'react';
 // eslint-disable-next-line no-duplicate-imports
-import type { ChangeEvent } from 'react';
-import * as ReactDOM from 'react-dom';
+import type { ChangeEvent, ReactElement } from 'react';
 
-import Autocomplete from '../../lib';
-import { getStates, fakeRequest } from '../../lib/utils';
+import Autocomplete from '../lib';
+import { getStates, fakeRequest } from '../lib/utils';
 
 class App extends React.Component {
   state = {
@@ -14,19 +13,19 @@ class App extends React.Component {
 
   requestTimer: null | number = null;
 
-  render() {
+  render(): ReactElement {
     return (
-      <div>
-        <h1>Async Data</h1>
+      <section>
+        <h2>Async Data</h2>
         <p>
           Autocomplete works great with async data by allowing you to pass in
           items. The <code>onChange</code> event provides you the value to make
           a server request with, then change state and pass in new items, it
           will attempt to autocomplete the first one.
         </p>
-        <label htmlFor="states-autocomplete">Choose a state from the US</label>
+        <label htmlFor="states-async-data">Choose a state from the US</label>
         <Autocomplete
-          inputProps={{ id: 'states-autocomplete' }}
+          inputProps={{ id: 'states-async-data' }}
           wrapperStyle={{ position: 'relative', display: 'inline-block' }}
           value={this.state.value}
           items={this.state.unitedStates}
@@ -58,9 +57,9 @@ class App extends React.Component {
             </div>
           )}
         />
-      </div>
+      </section>
     );
   }
 }
 
-ReactDOM.render(<App />, document.getElementById('container'));
+export default App;

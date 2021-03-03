@@ -4,6 +4,7 @@
   "description": "Accessible, extensible, Autocomplete for React.js",
   "main": "./build/lib/Autocomplete.js",
   "scripts": {
+    "start": "budo examples/index.tsx:bundle.js --live --dir examples -- -p [tsify -p tsconfig.examples.json]",
     "prettier": "prettier --write '**/*.{ts,tsx,js,jsx,html,css,md,mk,json}'",
     "prettier-check": "prettier --check '**/*.{ts,tsx,js,jsx,html,css,md,mk,json}'",
     "lint": "eslint '**/*.{ts,tsx,js,jsx}'",
@@ -41,6 +42,7 @@
     "@types/react-dom": "^15.5.12",
     "babelify": "^10.0.0",
     "browserify": "^17.0.0",
+    "budo": "^11.6.4",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-15": "^1.4.3",
     "enzyme-to-json": "^3.6.1",
@@ -57,6 +59,7 @@
     "react-dom": "^15.5.4",
     "react-test-renderer": "^15.5.4",
     "ts-jest": "^26.5.2",
+    "tsify": "^5.0.2",
     "typescript": "^4.1.5"
   },
   "tags": [

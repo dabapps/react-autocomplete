@@ -1,8 +1,9 @@
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
+// eslint-disable-next-line no-duplicate-imports
+import type { ReactElement } from 'react';
 
-import Autocomplete from '../../lib';
-import { getStates, matchStateToTerm } from '../../lib/utils';
+import Autocomplete from '../lib';
+import { getStates, matchStateToTerm } from '../lib/utils';
 
 const STATES = getStates();
 
@@ -24,12 +25,12 @@ class App extends React.Component<Props, State> {
     };
   }
 
-  render() {
+  render(): ReactElement {
     const { state } = this;
     const open = state.forceOpen || state.isOpen;
     return (
-      <div>
-        <h1>Managed Menu Visibility</h1>
+      <section>
+        <h2>Managed Menu Visibility</h2>
         <p>
           By default Autocomplete will manage its own menu visibility, using
           basic logic to decide whether or not to display it (e.g. open on
@@ -43,10 +44,12 @@ class App extends React.Component<Props, State> {
           the internal visibility state changes - for full control over the
           menu's visibility.
         </p>
-        <label htmlFor="states">Choose a US state</label>
+        <label htmlFor="states-managed-menu-visibility">
+          Choose a US state
+        </label>
         <Autocomplete
           value={state.value}
-          inputProps={{ id: 'states' }}
+          inputProps={{ id: 'states-managed-menu-visibility' }}
           items={STATES}
           shouldItemRender={matchStateToTerm}
           getItemValue={(item) => item.name}
@@ -79,9 +82,9 @@ class App extends React.Component<Props, State> {
           />
           Force menu to stay open
         </label>
-      </div>
+      </section>
     );
   }
 }
 
-ReactDOM.render(<App />, document.getElementById('container'));
+export default App;

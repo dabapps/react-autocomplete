@@ -1,10 +1,9 @@
 import * as React from 'react';
 // eslint-disable-next-line no-duplicate-imports
-import type { ChangeEvent } from 'react';
-import * as ReactDOM from 'react-dom';
+import type { ChangeEvent, ReactElement } from 'react';
 
-import Autocomplete from '../../lib';
-import { fakeCategorizedRequest, USState, Header } from '../../lib/utils';
+import Autocomplete from '../lib';
+import { fakeCategorizedRequest, USState, Header } from '../lib/utils';
 
 type Props = Record<string, never>;
 
@@ -27,19 +26,19 @@ class App extends React.Component<Props, State> {
     this.requestTimer = null;
   }
 
-  render() {
+  render(): ReactElement {
     return (
-      <div>
-        <h1>Custom Menu</h1>
+      <section>
+        <h2>Custom Menu</h2>
         <p>
           While Autocomplete ships with a decent looking menu, you can control
           the look as well as the rendering of it. In this example we'll group
           the states into the region where they belong.
         </p>
-        <label htmlFor="states-autocomplete">Choose a state from the US</label>
+        <label htmlFor="states-custom-menu">Choose a state from the US</label>
         <Autocomplete
           value={this.state.value}
-          inputProps={{ id: 'states-autocomplete' }}
+          inputProps={{ id: 'states-custom-menu' }}
           items={this.state.unitedStates}
           getItemValue={(item) => ('header' in item ? '' : item.name)}
           onSelect={(value, state) =>
@@ -85,9 +84,9 @@ class App extends React.Component<Props, State> {
           )}
           isItemSelectable={(item) => !('header' in item)}
         />
-      </div>
+      </section>
     );
   }
 }
 
-ReactDOM.render(<App />, document.getElementById('container'));
+export default App;
