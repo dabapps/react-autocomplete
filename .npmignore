@@ -1,5 +1,10 @@
-**/.*
-**/__tests__
-examples
+/node_modules/*
+/coverage/*
+/build/*
+/dist/*
+/examples/build/*
+/.vscode/*
+
+npm-debug.log*
 CONTRIBUTING.md
-bower.json
+**/.*
