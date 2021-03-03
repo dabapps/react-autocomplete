@@ -2,15 +2,17 @@
   "name": "react-autocomplete",
   "version": "1.8.1",
   "description": "Accessible, extensible, Autocomplete for React.js",
-  "main": "./build/lib/Autocomplete.js",
+  "main": "./dist/index.js",
   "scripts": {
+    "dist": "rm -rf dist && tsc --project tsconfig.dist.json",
     "start": "budo examples/src/index.tsx:build/bundle.js --live --dir examples -- -p [tsify -p tsconfig.examples.json] -t [ babelify --presets [ @babel/preset-env ] ]",
     "prettier": "prettier --write '**/*.{ts,tsx,js,jsx,html,css,md,mk,json}'",
     "prettier-check": "prettier --check '**/*.{ts,tsx,js,jsx,html,css,md,mk,json}'",
     "lint": "eslint '**/*.{ts,tsx,js,jsx}'",
     "typecheck": "tsc --noEmit",
     "tests": "jest",
-    "test": "npm run typecheck && npm run lint && npm run prettier-check && npm run tests -- --runInBand --coverage"
+    "test": "npm run typecheck && npm run lint && npm run prettier-check && npm run tests -- --runInBand --coverage",
+    "prepublishOnly": "npm run test && npm run dist"
   },
   "files": [
     "build/lib/index.js",
