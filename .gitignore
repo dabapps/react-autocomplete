@@ -3,5 +3,6 @@
 /build/*
 /dist/*
 /examples/__build__/*
+/.vscode/*
 
 npm-debug.log*
