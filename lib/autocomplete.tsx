@@ -10,7 +10,12 @@ import type {
 import { findDOMNode } from 'react-dom';
 import scrollIntoView from 'dom-scroll-into-view';
 
-import type { DefaultProps, InputProps, Props } from './types';
+import type {
+  DefaultProps,
+  InputProps,
+  Props,
+  ReturnsSpecificPredicate,
+} from './types';
 
 function getScrollOffset(): ScrollOffset {
   return {
@@ -46,7 +51,13 @@ interface ScrollOffset {
   y: number;
 }
 
-class Autocomplete<T> extends React.Component<Props<T>, State> {
+class Autocomplete<
+  T,
+  F1 extends (item: T, value: string) => boolean,
+  F2 extends (
+    item: F1 extends ReturnsSpecificPredicate<infer R> ? R : T
+  ) => boolean
+> extends React.Component<Props<T, F1, F2>, State> {
   static defaultProps: DefaultProps = {
     value: '',
     wrapperProps: {},
@@ -59,7 +70,7 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
     },
     onChange() {},
     onSelect() {},
-    isItemSelectable() {
+    isItemSelectable(): boolean {
       return true;
     },
     renderMenu(
@@ -168,7 +179,7 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
     }
   }
 
-  componentWillReceiveProps(nextProps: Props<T>): void {
+  componentWillReceiveProps(nextProps: Props<T, F1, F2>): void {
     if (
       this.state.highlightedIndex !== null &&
       this.state.highlightedIndex >= this.getFilteredItems(this.props).length
@@ -185,7 +196,7 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
     }
   }
 
-  componentDidUpdate(prevProps: Props<T>, prevState: State): void {
+  componentDidUpdate(prevProps: Props<T, F1, F2>, prevState: State): void {
     if (
       (this.state.isOpen && !prevState.isOpen) ||
       ('open' in this.props && this.props.open && !prevProps.open)
@@ -230,7 +241,7 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
 
     if (this.isKnownKeyHandler(key)) {
       Autocomplete.keyDownHandlers[key].call<
-        Autocomplete<T>,
+        Autocomplete<T, F1, F2>,
         [KeyboardEvent<HTMLInputElement>],
         void
       >(this, event);
@@ -246,8 +257,14 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
   };
 
   static keyDownHandlers = {
-    ArrowDown<T2>(
-      this: Autocomplete<T2>,
+    ArrowDown<
+      T2,
+      F12 extends (item: T2, value: string) => boolean,
+      F22 extends (
+        item: F12 extends ReturnsSpecificPredicate<infer R> ? R : T2
+      ) => boolean
+    >(
+      this: Autocomplete<T2, F12, F22>,
       event: KeyboardEvent<HTMLInputElement>
     ): void {
       event.preventDefault();
@@ -262,8 +279,13 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
       for (let i = 0; i < items.length; i++) {
         const p = (index + i + 1) % items.length;
         const item = items[p];
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        if (item && this.props.isItemSelectable!(item)) {
+        if (
+          item &&
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          this.props.isItemSelectable!(
+            item as F12 extends ReturnsSpecificPredicate<infer R> ? R : T2
+          )
+        ) {
           index = p;
           break;
         }
@@ -276,8 +298,14 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
       }
     },
 
-    ArrowUp<T2>(
-      this: Autocomplete<T2>,
+    ArrowUp<
+      T2,
+      F12 extends (item: T2, value: string) => boolean,
+      F22 extends (
+        item: F12 extends ReturnsSpecificPredicate<infer R> ? R : T2
+      ) => boolean
+    >(
+      this: Autocomplete<T2, F12, F22>,
       event: KeyboardEvent<HTMLInputElement>
     ): void {
       event.preventDefault();
@@ -288,8 +316,13 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
       for (let i = 0; i < items.length; i++) {
         const p = (index - (1 + i) + items.length) % items.length;
         const item = items[p];
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        if (item && this.props.isItemSelectable!(item)) {
+        if (
+          item &&
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          this.props.isItemSelectable!(
+            item as F12 extends ReturnsSpecificPredicate<infer R> ? R : T2
+          )
+        ) {
           index = p;
           break;
         }
@@ -302,8 +335,14 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
       }
     },
 
-    Enter<T2>(
-      this: Autocomplete<T2>,
+    Enter<
+      T2,
+      F12 extends (item: T2, value: string) => boolean,
+      F22 extends (
+        item: F12 extends ReturnsSpecificPredicate<infer R> ? R : T2
+      ) => boolean
+    >(
+      this: Autocomplete<T2, F12, F22>,
       event: KeyboardEvent<HTMLInputElement>
     ): void {
       // Key code 229 is used for selecting items from character selectors (Pinyin, Kana, etc)
@@ -335,7 +374,9 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
         ];
 
         if (item) {
-          const value = this.props.getItemValue(item);
+          const value = this.props.getItemValue(
+            item as F22 extends ReturnsSpecificPredicate<infer R> ? R : T2
+          );
           this.setState(
             {
               isOpen: false,
@@ -356,7 +397,13 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
       }
     },
 
-    Escape<T2>(this: Autocomplete<T2>): void {
+    Escape<
+      T2,
+      F12 extends (item: T2, value: string) => boolean,
+      F22 extends (
+        item: F12 extends ReturnsSpecificPredicate<infer R> ? R : T2
+      ) => boolean
+    >(this: Autocomplete<T2, F12, F22>): void {
       // In case the user is currently hovering over the menu
       this.setIgnoreBlur(false);
       this.setState({
@@ -365,13 +412,22 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
       });
     },
 
-    Tab<T2>(this: Autocomplete<T2>): void {
+    Tab<
+      T2,
+      F12 extends (item: T2, value: string) => boolean,
+      F22 extends (
+        item: F12 extends ReturnsSpecificPredicate<infer R> ? R : T2
+      ) => boolean
+    >(this: Autocomplete<T2, F12, F22>): void {
       // In case the user is currently hovering over the menu
       this.setIgnoreBlur(false);
     },
   };
 
-  getFilteredItems(props: Props<T>): readonly T[] {
+  getFilteredItems(
+    props: Props<T, F1, F2>
+  ): F1 extends ReturnsSpecificPredicate<infer R> ? readonly R[] : readonly T[];
+  getFilteredItems(props: Props<T, F1, F2>): readonly T[] {
     const { shouldItemRender, sortItems } = props;
     let { items } = props;
 
@@ -388,7 +444,7 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
 
   maybeAutoCompleteText = (
     state: State,
-    props: Props<T>
+    props: Props<T, F1, F2>
   ): Pick<State, 'highlightedIndex'> => {
     const { highlightedIndex } = state;
     const { value, getItemValue } = props;
@@ -397,19 +453,32 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
 
     for (let i = 0; i < items.length; i++) {
       const item = items[index];
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      if (item && props.isItemSelectable!(item)) {
+      if (
+        item &&
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        props.isItemSelectable!(
+          item as F1 extends ReturnsSpecificPredicate<infer R> ? R : T
+        )
+      ) {
         break;
       }
 
       index = (index + 1) % items.length;
     }
     const item = items[index];
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const matchedItem = item && props.isItemSelectable!(item) ? item : null;
+    const matchedItem =
+      item &&
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      props.isItemSelectable!(
+        item as F1 extends ReturnsSpecificPredicate<infer R> ? R : T
+      )
+        ? item
+        : null;
 
     if (value !== '' && matchedItem) {
-      const itemValue = getItemValue(matchedItem);
+      const itemValue = getItemValue(
+        matchedItem as F2 extends ReturnsSpecificPredicate<infer R> ? R : T
+      );
       const itemValueDoesMatch =
         itemValue.toLowerCase().indexOf((value ?? '').toLowerCase()) === 0;
       if (itemValueDoesMatch) {
@@ -439,7 +508,9 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
     this.setState({ highlightedIndex: index });
   }
 
-  selectItemFromMouse(item: T): void {
+  selectItemFromMouse(
+    item: F2 extends ReturnsSpecificPredicate<infer R> ? R : T
+  ): void {
     const value = this.props.getItemValue(item);
     // The menu will de-render before a mouseLeave event
     // happens. Clear the flag to release control over focus
@@ -462,18 +533,25 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
   renderMenu(): ReactElement {
     const items = this.getFilteredItems(this.props).map((item, index) => {
       const element = this.props.renderItem(
-        item,
+        item as F1 extends ReturnsSpecificPredicate<infer R> ? R : T,
         this.state.highlightedIndex === index,
         { cursor: 'default' }
       );
       return React.cloneElement(element, {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        onMouseEnter: this.props.isItemSelectable!(item)
+        onMouseEnter: this.props.isItemSelectable!(
+          item as F1 extends ReturnsSpecificPredicate<infer R> ? R : T
+        )
           ? () => this.highlightItemFromMouse(index)
           : null,
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        onClick: this.props.isItemSelectable!(item)
-          ? () => this.selectItemFromMouse(item)
+        onClick: this.props.isItemSelectable!(
+          item as F1 extends ReturnsSpecificPredicate<infer R> ? R : T
+        )
+          ? () =>
+              this.selectItemFromMouse(
+                item as F2 extends ReturnsSpecificPredicate<infer R> ? R : T
+              )
           : null,
         ref: (e: HTMLElement | null) => (this.myRefs[`item-${index}`] = e),
       });
@@ -509,8 +587,16 @@ class Autocomplete<T> extends React.Component<Props<T>, State> {
     if (this.props.selectOnBlur && highlightedIndex !== null) {
       const items = this.getFilteredItems(this.props);
       const item = items[highlightedIndex];
-      if (item) {
-        const value = this.props.getItemValue(item);
+      if (
+        item &&
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.props.isItemSelectable!(
+          item as F1 extends ReturnsSpecificPredicate<infer R> ? R : T
+        )
+      ) {
+        const value = this.props.getItemValue(
+          item as F2 extends ReturnsSpecificPredicate<infer R> ? R : T
+        );
         setStateCallback = () => this.props.onSelect?.(value, item);
       }
     }

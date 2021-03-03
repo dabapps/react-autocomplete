@@ -5,11 +5,62 @@ import type {
   HTMLProps,
 } from 'react';
 
-export interface Props<T> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type ReturnsSpecificPredicate<R> = (item: any) => item is R;
+
+/**
+ * T = base item type
+ * F1 = shouldItemRender
+ * F2 = isItemSelectable
+ */
+export interface Props<
+  T,
+  F1 extends (item: T, value: string) => boolean,
+  F2 extends (
+    item: F1 extends ReturnsSpecificPredicate<infer R> ? R : T
+  ) => boolean
+> {
   /**
    * The items to display in the dropdown menu
    */
   items: readonly T[];
+  /**
+   * Arguments: `item: Any, value: String`
+   *
+   * Invoked for each entry in `items` and its return value is used to
+   * determine whether or not it should be displayed in the dropdown menu.
+   * By default all items are always rendered.
+   */
+  shouldItemRender?: F1;
+  /**
+   * Arguments: `item: Any, isHighlighted: Boolean, styles: Object`
+   *
+   * Invoked for each entry in `items` that also passes `shouldItemRender` to
+   * generate the render tree for each item in the dropdown menu. `styles` is
+   * an optional set of styles that can be applied to improve the look/feel
+   * of the items in the dropdown menu.
+   */
+  renderItem: (
+    item: F1 extends ReturnsSpecificPredicate<infer R> ? R : T,
+    isHighlighted: boolean,
+    styles: Partial<CSSProperties>
+  ) => ReactElement;
+  /**
+   * Arguments: `item: Any`
+   *
+   * Invoked when attempting to select an item. The return value is used to
+   * determine whether the item should be selectable or not.
+   * By default all items are selectable.
+   */
+  isItemSelectable?: F2;
+  /**
+   * Arguments: `item: Any`
+   *
+   * Used to read the display value from each entry in `items`.
+   */
+  getItemValue: (
+    item: F2 extends ReturnsSpecificPredicate<infer R> ? R : T
+  ) => string;
   /**
    * The value to display in the input field
    */
@@ -27,46 +78,11 @@ export interface Props<T> {
    */
   onSelect?: (value: string, item: T) => void;
   /**
-   * Arguments: `item: Any, value: String`
-   *
-   * Invoked for each entry in `items` and its return value is used to
-   * determine whether or not it should be displayed in the dropdown menu.
-   * By default all items are always rendered.
-   */
-  shouldItemRender?: (item: T, value: string) => void;
-  /**
-   * Arguments: `item: Any`
-   *
-   * Invoked when attempting to select an item. The return value is used to
-   * determine whether the item should be selectable or not.
-   * By default all items are selectable.
-   */
-  isItemSelectable?: (item: T) => boolean;
-  /**
    * Arguments: `itemA: Any, itemB: Any, value: String`
    *
    * The function which is used to sort `items` before display.
    */
   sortItems?: (itemA: T, itemB: T, value: string) => number;
-  /**
-   * Arguments: `item: Any`
-   *
-   * Used to read the display value from each entry in `items`.
-   */
-  getItemValue: (item: T) => string;
-  /**
-   * Arguments: `item: Any, isHighlighted: Boolean, styles: Object`
-   *
-   * Invoked for each entry in `items` that also passes `shouldItemRender` to
-   * generate the render tree for each item in the dropdown menu. `styles` is
-   * an optional set of styles that can be applied to improve the look/feel
-   * of the items in the dropdown menu.
-   */
-  renderItem: (
-    item: T,
-    isHighlighted: boolean,
-    styles: Partial<CSSProperties>
-  ) => ReactElement;
   /**
    * Arguments: `items: Array<Any>, value: String, styles: Object`
    *
@@ -146,7 +162,7 @@ export interface Props<T> {
 }
 
 export type DefaultProps = Pick<
-  Props<unknown>,
+  Props<unknown, () => boolean, () => boolean>,
   | 'value'
   | 'wrapperProps'
   | 'wrapperStyle'
