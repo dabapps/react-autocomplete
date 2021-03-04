@@ -1,3 +1,3 @@
 #!/bin/sh -e
 
-jest
+jest --runInBand --coverage

@@ -1,17 +1,18 @@
-import React from 'react'
-import DOM from 'react-dom'
-import { getStates, matchStateToTerm, sortStates } from '../../lib/utils'
-import Autocomplete from '../../lib/index'
+import React from 'react';
+import DOM from 'react-dom';
+
+import { getStates, matchStateToTerm, sortStates } from '../../lib/utils';
+import Autocomplete from '../../lib';
 
 class App extends React.Component {
-  state = { value: 'Ma' }
+  state = { value: 'Ma' };
   render() {
     return (
       <div>
         <h1>Basic Example with Static Data</h1>
         <p>
-          When using static data, you use the client to sort and filter the items,
-          so <code>Autocomplete</code> has methods baked in to help.
+          When using static data, you use the client to sort and filter the
+          items, so <code>Autocomplete</code> has methods baked in to help.
         </p>
         <label htmlFor="states-autocomplete">Choose a state from the US</label>
         <Autocomplete
@@ -23,24 +24,24 @@ class App extends React.Component {
           shouldItemRender={matchStateToTerm}
           sortItems={sortStates}
           onChange={(event, value) => this.setState({ value })}
-          onSelect={value => this.setState({ value })}
-          renderMenu={children => (
-            <div className="menu">
-              {children}
-            </div>
-          )}
+          onSelect={(value) => this.setState({ value })}
+          renderMenu={(children) => <div className="menu">{children}</div>}
           renderItem={(item, isHighlighted) => (
             <div
               className={`item ${isHighlighted ? 'item-highlighted' : ''}`}
               key={item.abbr}
-            >{item.name}</div>
+            >
+              {item.name}
+            </div>
           )}
         />
       </div>
-    )
+    );
   }
 }
 
-DOM.render(<App/>, document.getElementById('container'))
+DOM.render(<App />, document.getElementById('container'));
 
-if (module.hot) { module.hot.accept() }
+if (module.hot) {
+  module.hot.accept();
+}
