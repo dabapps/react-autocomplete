@@ -2,6 +2,6 @@
 /coverage/*
 /build/*
 /dist/*
-/examples/__build__/*
+/examples/build/*
 
 npm-debug.log*

@@ -2,4 +2,4 @@
 /coverage/*
 /build/*
 /dist/*
-/examples/__build__/*
+/examples/build/*

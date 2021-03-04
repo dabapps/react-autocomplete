@@ -2,14 +2,17 @@
   "name": "react-autocomplete",
   "version": "1.8.1",
   "description": "Accessible, extensible, Autocomplete for React.js",
-  "main": "./build/lib/Autocomplete.js",
+  "main": "./dist/index.js",
   "scripts": {
+    "dist": "rm -rf dist && tsc --project tsconfig.dist.json",
+    "start": "budo examples/src/index.tsx:build/bundle.js --live --dir examples -- -p [tsify -p tsconfig.examples.json] -t [ babelify --presets [ @babel/preset-env ] ]",
     "prettier": "prettier --write '**/*.{ts,tsx,js,jsx,html,css,md,mk,json}'",
     "prettier-check": "prettier --check '**/*.{ts,tsx,js,jsx,html,css,md,mk,json}'",
     "lint": "eslint '**/*.{ts,tsx,js,jsx}'",
     "typecheck": "tsc --noEmit",
     "tests": "jest",
-    "test": "npm run typecheck && npm run lint && npm run prettier-check && npm run tests -- --runInBand --coverage"
+    "test": "npm run typecheck && npm run lint && npm run prettier-check && npm run tests -- --runInBand --coverage",
+    "prepublishOnly": "npm run test && npm run dist"
   },
   "files": [
     "build/lib/index.js",
@@ -30,23 +33,20 @@
   ],
   "license": "MIT",
   "devDependencies": {
-    "@babel/cli": "^7.13.0",
     "@babel/core": "^7.13.1",
-    "@babel/plugin-proposal-class-properties": "^7.13.0",
     "@babel/preset-env": "^7.13.5",
-    "@babel/preset-react": "^7.12.13",
     "@types/enzyme": "^3.10.8",
     "@types/enzyme-adapter-react-15": "^1.0.6",
     "@types/react": "^15.7.0",
     "@types/react-dom": "^15.5.12",
     "babelify": "^10.0.0",
     "browserify": "^17.0.0",
+    "budo": "^11.6.4",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-15": "^1.4.3",
     "enzyme-to-json": "^3.6.1",
     "eslint": "^6.8.0",
     "eslint-config-dabapps": "^7.0.0",
-    "exorcist": "^0.4.0",
     "jest": "^26.6.3",
     "lodash.flow": "^3.5.0",
     "lodash.map": "^4.6.0",
@@ -57,6 +57,7 @@
     "react-dom": "^15.5.4",
     "react-test-renderer": "^15.5.4",
     "ts-jest": "^26.5.2",
+    "tsify": "^5.0.2",
     "typescript": "^4.1.5"
   },
   "tags": [
