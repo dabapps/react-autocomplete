@@ -8,5 +8,12 @@
     "@typescript-eslint/no-var-requires": 0,
     "@typescript-eslint/no-empty-function": 0,
     "dabapps/no-relative-parent-import": 0
+  },
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "extensions": [".js", ".jsx", ".ts", ".tsx"]
+      }
+    }
   }
 }

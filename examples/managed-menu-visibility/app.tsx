@@ -1,13 +1,21 @@
-import React, { Component } from 'react';
-import DOM from 'react-dom';
+import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 
 import Autocomplete from '../../lib';
 import { getStates, matchStateToTerm } from '../../lib/utils';
 
 const STATES = getStates();
 
-class App extends Component {
-  constructor(props) {
+type Props = Record<string, never>;
+
+interface State {
+  value: string;
+  isOpen: boolean;
+  forceOpen: boolean;
+}
+
+class App extends React.Component<Props, State> {
+  constructor(props: Props) {
     super(props);
     this.state = {
       value: '',
@@ -76,8 +84,4 @@ class App extends Component {
   }
 }
 
-DOM.render(<App />, document.getElementById('container'));
-
-if (module.hot) {
-  module.hot.accept();
-}
+ReactDOM.render(<App />, document.getElementById('container'));

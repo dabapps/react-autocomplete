@@ -1,14 +1,21 @@
-import React from 'react';
+import * as React from 'react';
+// eslint-disable-next-line no-duplicate-imports
+import type { FocusEvent, ReactElement } from 'react';
 import { mount, shallow } from 'enzyme';
 
-import Autocomplete from '../Autocomplete';
+import Autocomplete, { State } from '../autocomplete';
 import {
   getStates,
   getCategorizedStates,
   matchStateToTermWithHeaders,
+  USState,
+  Header,
 } from '../utils';
+import { InputProps, Props } from '../types';
 
-function AutocompleteComponentJSX(extraProps) {
+type USStateProps = Props<USState, () => boolean, () => boolean>;
+
+function AutocompleteComponentJSX(extraProps: Partial<USStateProps>) {
   return (
     <Autocomplete
       getItemValue={(item) => item.name}
@@ -24,48 +31,64 @@ jest.useFakeTimers();
 
 afterEach(() => {
   jest.clearAllTimers();
-  setTimeout.mockClear();
-  clearTimeout.mockClear();
+  ((window.setTimeout as unknown) as jest.Mock).mockClear();
+  ((window.clearTimeout as unknown) as jest.Mock).mockClear();
 });
 
 describe('Autocomplete acceptance tests', () => {
-  const autocompleteWrapper = mount(AutocompleteComponentJSX({}));
+  const autocompleteWrapper = mount<
+    Autocomplete<USState, () => boolean, () => boolean>,
+    USStateProps,
+    State
+  >(AutocompleteComponentJSX({}));
   const autocompleteInputWrapper = autocompleteWrapper.find('input');
 
   it('should display autocomplete menu when input has focus', () => {
     expect(autocompleteWrapper.state('isOpen')).toBe(false);
-    expect(autocompleteWrapper.instance().refs.menu).toBe(undefined);
+    expect(autocompleteWrapper.instance()['myRefs'].menu).toBe(undefined);
 
     // Display autocomplete menu upon input focus
     autocompleteInputWrapper.simulate('focus');
 
     expect(autocompleteWrapper.state('isOpen')).toBe(true);
-    expect(autocompleteWrapper.instance().refs.menu).not.toBe(undefined);
+    expect(autocompleteWrapper.instance()['myRefs'].menu).not.toBe(undefined);
   });
 
   it('should show results when value is a partial match', () => {
     // Render autocomplete results upon partial input match
-    expect(autocompleteWrapper.instance().refs.menu.children.length).toBe(50);
+    expect(autocompleteWrapper.instance()['myRefs'].menu?.children.length).toBe(
+      50
+    );
     autocompleteWrapper.setProps({ value: 'Ar' });
-    expect(autocompleteWrapper.instance().refs.menu.children.length).toBe(6);
+    expect(autocompleteWrapper.instance()['myRefs'].menu?.children.length).toBe(
+      6
+    );
   });
 
   it('should close autocomplete menu when input is blurred', () => {
     autocompleteInputWrapper.simulate('blur');
 
     expect(autocompleteWrapper.state('isOpen')).toBe(false);
-    expect(autocompleteWrapper.instance().refs.menu).toBe(null);
+    expect(autocompleteWrapper.instance()['myRefs'].menu).toBe(null);
   });
 
   it('should highlight top match when `props.value` changes', () => {
-    const tree = mount(AutocompleteComponentJSX({}));
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(AutocompleteComponentJSX({}));
     expect(tree.state('highlightedIndex')).toEqual(null);
     tree.setProps({ value: 'a' });
     expect(tree.state('highlightedIndex')).toEqual(0);
   });
 
   it('should highlight top match when an item appears in `props.items` that matches `props.value`', () => {
-    const tree = mount(
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(
       AutocompleteComponentJSX({
         items: [],
       })
@@ -79,7 +102,11 @@ describe('Autocomplete acceptance tests', () => {
   });
 
   it('should not highlight top match when `props.autoHighlight=false`', () => {
-    const tree = mount(
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(
       AutocompleteComponentJSX({
         autoHighlight: false,
       })
@@ -91,7 +118,11 @@ describe('Autocomplete acceptance tests', () => {
   });
 
   it('should reset `state.highlightedIndex` when `props.value` becomes an empty string`', () => {
-    const tree = mount(AutocompleteComponentJSX({}));
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(AutocompleteComponentJSX({}));
     tree.setProps({ value: 'a' });
     expect(tree.state('highlightedIndex')).toEqual(0);
     tree.setProps({ value: '' });
@@ -99,7 +130,11 @@ describe('Autocomplete acceptance tests', () => {
   });
 
   it("should reset `state.highlightedIndex` if `props.value` doesn't match anything", () => {
-    const tree = mount(
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(
       AutocompleteComponentJSX({
         shouldItemRender() {
           return true;
@@ -113,7 +148,11 @@ describe('Autocomplete acceptance tests', () => {
   });
 
   it('should preserve `state.highlightedIndex` when `props.value` changes as long as it still matches', () => {
-    const tree = mount(
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(
       AutocompleteComponentJSX({
         value: 'h',
         shouldItemRender() {
@@ -129,26 +168,33 @@ describe('Autocomplete acceptance tests', () => {
   it('should reset `state.highlightedIndex` when it falls outside of possible `props.items` range', () => {
     const items = getStates();
     autocompleteWrapper.setState({ highlightedIndex: 10 });
-    items.length = 5;
-    autocompleteWrapper.setProps({ items });
+    autocompleteWrapper.setProps({
+      items: items.filter((_item, index) => index < 5),
+    });
     expect(autocompleteWrapper.state('highlightedIndex')).toBe(null);
   });
 
   it('should preserve `state.highlightedIndex` when it is within `props.items` range and `props.value` is unchanged`', () => {
-    const tree = mount(
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(
       AutocompleteComponentJSX({
         value: 'a',
       })
     );
     tree.setState({ highlightedIndex: 0 });
-    jest.spyOn(tree.instance(), 'ensureHighlightedIndex');
     tree.setProps({ value: 'a' });
-    expect(tree.instance().ensureHighlightedIndex).toHaveBeenCalledTimes(1);
     expect(tree.state('highlightedIndex')).toEqual(0);
   });
 
   it('should preserve the matched item even when its previous place was outside of the new range', () => {
-    const tree = mount(AutocompleteComponentJSX({}));
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(AutocompleteComponentJSX({}));
     jest.spyOn(tree.instance(), 'maybeAutoCompleteText');
     tree.setProps({ value: 'ma' });
     tree.setState({ highlightedIndex: 3 }); // Massachusetts
@@ -158,7 +204,11 @@ describe('Autocomplete acceptance tests', () => {
   });
 
   it('should display menu based on `props.open` when provided', () => {
-    const tree = mount(AutocompleteComponentJSX({}));
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(AutocompleteComponentJSX({}));
 
     expect(tree.state('isOpen')).toBe(false);
     expect(tree.children().first().children('div').length).toBe(0);
@@ -172,8 +222,13 @@ describe('Autocomplete acceptance tests', () => {
   });
 
   it('should set menu positions on initial render if the menu is visible', () => {
-    const menuSpy = jest.fn(() => <div />);
-    mount(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const menuSpy = jest.fn((..._args: [unknown, unknown, unknown]) => <div />);
+    mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(
       AutocompleteComponentJSX({
         open: true,
         renderMenu: menuSpy,
@@ -181,18 +236,27 @@ describe('Autocomplete acceptance tests', () => {
     );
     expect(menuSpy).toHaveBeenCalledTimes(2);
     // Initial render
-    expect(menuSpy.mock.calls[0][2]).toEqual({
+    expect(menuSpy.mock.calls?.[0]?.[2]).toEqual({
       left: undefined,
       top: undefined,
       minWidth: undefined,
     });
     // Re-render after componentDidMount
-    expect(menuSpy.mock.calls[1][2]).toEqual({ left: 0, top: 0, minWidth: 0 });
+    expect(menuSpy.mock.calls?.[1]?.[2]).toEqual({
+      left: 0,
+      top: 0,
+      minWidth: 0,
+    });
   });
 
   it('should set menu positions when the menu is forced open via props.open', () => {
-    const menuSpy = jest.fn(() => <div />);
-    const tree = mount(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const menuSpy = jest.fn((..._args: [unknown, unknown, unknown]) => <div />);
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(
       AutocompleteComponentJSX({
         renderMenu: menuSpy,
       })
@@ -200,17 +264,25 @@ describe('Autocomplete acceptance tests', () => {
     expect(menuSpy).not.toHaveBeenCalled();
     tree.setProps({ open: true });
     expect(menuSpy).toHaveBeenCalledTimes(2);
-    expect(menuSpy.mock.calls[0][2]).toEqual({
+    expect(menuSpy.mock.calls?.[0]?.[2]).toEqual({
       left: undefined,
       top: undefined,
       minWidth: undefined,
     });
-    expect(menuSpy.mock.calls[1][2]).toEqual({ left: 0, top: 0, minWidth: 0 });
+    expect(menuSpy.mock.calls?.[1]?.[2]).toEqual({
+      left: 0,
+      top: 0,
+      minWidth: 0,
+    });
   });
 
   it('should invoke `props.inMenuVisibilityChange` when `state.isOpen` changes', () => {
     const onMenuVisibilityChange = jest.fn();
-    const tree = mount(AutocompleteComponentJSX({ onMenuVisibilityChange }));
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(AutocompleteComponentJSX({ onMenuVisibilityChange }));
     expect(tree.state('isOpen')).toBe(false);
     expect(onMenuVisibilityChange).not.toHaveBeenCalled();
     tree.setState({ isOpen: true });
@@ -223,16 +295,22 @@ describe('Autocomplete acceptance tests', () => {
 
   it('should allow specifying any event handler via `props.inputProps`', () => {
     const handlers = ['Focus', 'Blur', 'KeyDown', 'KeyUp', 'Click'];
-    const spies = [];
-    const inputProps = {};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const spies: jest.Mock<any, any>[] = [];
+    const inputProps: InputProps = {};
     handlers.forEach(
-      (handler, i) => (inputProps[`on${handler}`] = spies[i] = jest.fn())
+      (handler, i) =>
+        (inputProps[`on${handler}` as keyof InputProps] = spies[i] = jest.fn())
     );
-    const tree = mount(AutocompleteComponentJSX({ inputProps }));
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(AutocompleteComponentJSX({ inputProps }));
     handlers.forEach((handler, i) => {
       tree.find('input').simulate(handler.toLowerCase());
       expect(spies[i]).toHaveBeenCalledTimes(1);
-      expect(spies[i].mock.calls[0][0]).toBeDefined();
+      expect(spies[i]?.mock.calls[0][0]).toBeDefined();
     });
   });
 
@@ -240,7 +318,11 @@ describe('Autocomplete acceptance tests', () => {
     const onBlurSpy = jest.fn();
     const onFocusSpy = jest.fn();
     const onSelectSpy = jest.fn();
-    const tree = mount(
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(
       AutocompleteComponentJSX({
         inputProps: {
           onBlur: onBlurSpy,
@@ -260,7 +342,11 @@ describe('Autocomplete acceptance tests', () => {
 
   it('should select value on blur when selectOnBlur=true and highlightedIndex is not null', () => {
     const onSelect = jest.fn();
-    const tree = mount(
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(
       AutocompleteComponentJSX({
         selectOnBlur: true,
         onSelect,
@@ -276,7 +362,11 @@ describe('Autocomplete acceptance tests', () => {
 
   it('should not select value on blur when selectOnBlur=false', () => {
     const onSelect = jest.fn();
-    const tree = mount(
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(
       AutocompleteComponentJSX({
         selectOnBlur: false,
         onSelect,
@@ -291,7 +381,11 @@ describe('Autocomplete acceptance tests', () => {
 
   it('should not select value on blur when selectOnBlur=true and highlightedIndex=null ', () => {
     const onSelect = jest.fn();
-    const tree = mount(
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(
       AutocompleteComponentJSX({
         selectOnBlur: false,
         onSelect,
@@ -307,48 +401,64 @@ describe('Autocomplete acceptance tests', () => {
 
 describe('focus management', () => {
   it('should preserve focus when clicking on a menu item', () => {
-    const tree = mount(AutocompleteComponentJSX({}));
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(AutocompleteComponentJSX({}));
     const ac = tree.instance();
     const input = tree.find('input');
     input.simulate('focus');
-    ac.refs.input.focus = jest.fn(() => input.simulate('focus'));
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    ac['myRefs'].input!.focus = jest.fn(() => input.simulate('focus'));
     expect(tree.state('isOpen')).toBe(true);
     const menu = tree.find('div > div').at(0);
     menu.simulate('mouseEnter');
-    expect(ac._ignoreBlur).toBe(true);
+    expect(ac['_ignoreBlur']).toBe(true);
     input.simulate('blur');
     expect(tree.state('isOpen')).toBe(true);
     const items = tree.find('div > div > div');
     items.at(3).simulate('click');
-    expect(ac.refs.input.focus).toHaveBeenCalledTimes(1);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    expect(ac['myRefs'].input!.focus).toHaveBeenCalledTimes(1);
     expect(tree.state('isOpen')).toBe(false);
-    expect(ac._ignoreBlur).toBe(false);
+    expect(ac['_ignoreBlur']).toBe(false);
   });
 
   it('...even if `input.focus()` happens async (IE)', () => {
-    const tree = mount(AutocompleteComponentJSX({}));
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(AutocompleteComponentJSX({}));
     const ac = tree.instance();
     const input = tree.find('input');
     input.simulate('focus');
-    ac.refs.input.focus = jest.fn();
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    ac['myRefs'].input!.focus = jest.fn();
     expect(tree.state('isOpen')).toBe(true);
     const menu = tree.find('div > div').at(0);
     menu.simulate('mouseEnter');
-    expect(ac._ignoreBlur).toBe(true);
+    expect(ac['_ignoreBlur']).toBe(true);
     input.simulate('blur');
     expect(tree.state('isOpen')).toBe(true);
     const items = tree.find('div > div > div');
     items.at(3).simulate('click');
-    expect(ac.refs.input.focus).toHaveBeenCalledTimes(1);
-    expect(ac._ignoreFocus).toBe(true);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    expect(ac['myRefs'].input!.focus).toHaveBeenCalledTimes(1);
+    expect(ac['_ignoreFocus']).toBe(true);
     input.simulate('focus');
     expect(tree.state('isOpen')).toBe(false);
-    expect(ac._ignoreBlur).toBe(false);
-    expect(ac._ignoreFocus).toBe(false);
+    expect(ac['_ignoreBlur']).toBe(false);
+    expect(ac['_ignoreFocus']).toBe(false);
   });
 
   it('should preserve focus when clicking on non-item elements in the menu', () => {
-    const tree = mount(
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(
       AutocompleteComponentJSX({
         renderMenu: (items) => (
           <div>
@@ -361,68 +471,86 @@ describe('focus management', () => {
     const ac = tree.instance();
     const input = tree.find('input');
     input.simulate('focus');
-    ac.refs.input.focus = jest.fn(() => input.simulate('focus'));
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    ac['myRefs'].input!.focus = jest.fn(() => input.simulate('focus'));
     expect(tree.state('isOpen')).toBe(true);
     const menu = tree.find('div > div').at(0);
     menu.simulate('mouseEnter');
-    expect(ac._ignoreBlur).toBe(true);
+    expect(ac['_ignoreBlur']).toBe(true);
     input.simulate('blur');
     expect(tree.state('isOpen')).toBe(true);
     const nonItem = tree.find('span');
     nonItem.simulate('click');
-    expect(ac.refs.input.focus).toHaveBeenCalledTimes(1);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    expect(ac['myRefs'].input!.focus).toHaveBeenCalledTimes(1);
     expect(tree.state('isOpen')).toBe(true);
-    expect(ac._ignoreBlur).toBe(true);
+    expect(ac['_ignoreBlur']).toBe(true);
   });
 
   it('should save scroll position on blur', () => {
-    const tree = mount(AutocompleteComponentJSX({}));
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(AutocompleteComponentJSX({}));
     const ac = tree.instance();
-    expect(ac._scrollOffset).toBe(null);
-    ac._ignoreBlur = true;
-    ac.handleInputBlur();
-    expect(ac._scrollOffset).toEqual(expect.any(Object));
-    expect(ac._scrollOffset.x).toEqual(expect.any(Number));
-    expect(ac._scrollOffset.y).toEqual(expect.any(Number));
+    expect(ac['_scrollOffset']).toBe(null);
+    ac['_ignoreBlur'] = true;
+    ac.handleInputBlur({} as FocusEvent<HTMLInputElement>);
+    expect(ac['_scrollOffset']).toEqual(expect.any(Object));
+    expect(ac['_scrollOffset']?.x).toEqual(expect.any(Number));
+    expect(ac['_scrollOffset']?.y).toEqual(expect.any(Number));
   });
 
   it('should restore scroll position on focus reset', () => {
     jest.spyOn(window, 'scrollTo');
-    const tree = mount(AutocompleteComponentJSX({}));
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(AutocompleteComponentJSX({}));
     const ac = tree.instance();
-    ac._ignoreFocus = true;
-    ac._scrollOffset = { x: 1, y: 2 };
-    const timer = {};
-    ac._scrollTimer = timer;
-    ac.handleInputFocus();
+    ac['_ignoreFocus'] = true;
+    ac['_scrollOffset'] = { x: 1, y: 2 };
+    const timer = 123;
+    ac['_scrollTimer'] = timer;
+    ac.handleInputFocus({} as FocusEvent<HTMLInputElement>);
     expect(window.scrollTo).toHaveBeenCalledTimes(1);
     expect(window.scrollTo).toHaveBeenCalledWith(1, 2);
-    expect(clearTimeout).toHaveBeenCalledTimes(1);
-    expect(clearTimeout).toHaveBeenCalledWith(timer);
-    expect(setTimeout).toHaveBeenCalledTimes(1);
-    expect(ac._scrollTimer).toEqual(expect.any(Number));
-    expect(ac._scrollOffset).toBe(null);
+    expect(window.clearTimeout).toHaveBeenCalledTimes(1);
+    expect(window.clearTimeout).toHaveBeenCalledWith(timer);
+    expect(window.setTimeout).toHaveBeenCalledTimes(1);
+    expect(ac['_scrollTimer']).toEqual(expect.any(Number));
+    expect(ac['_scrollOffset']).toBe(null);
     jest.runAllTimers();
     expect(window.scrollTo).toHaveBeenCalledTimes(2);
     expect(window.scrollTo).toHaveBeenLastCalledWith(1, 2);
-    expect(ac._scrollTimer).toBe(null);
+    expect(ac['_scrollTimer']).toBe(null);
   });
 
   it('should clear any pending scroll timers on unmount', () => {
-    const tree = mount(AutocompleteComponentJSX({}));
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(AutocompleteComponentJSX({}));
     const ac = tree.instance();
-    ac._scrollTimer = 42;
+    ac['_scrollTimer'] = 42;
     tree.unmount();
-    expect(ac._scrollTimer).toBe(null);
-    expect(clearTimeout).toHaveBeenCalledTimes(1);
-    expect(clearTimeout).toHaveBeenCalledWith(42);
+    expect(ac['_scrollTimer']).toBe(null);
+    expect(window.clearTimeout).toHaveBeenCalledTimes(1);
+    expect(window.clearTimeout).toHaveBeenCalledWith(42);
   });
 });
 
 // Event handler unit tests
 
 describe('Autocomplete keyPress-><character> event handlers', () => {
-  const autocompleteWrapper = mount(AutocompleteComponentJSX({}));
+  const autocompleteWrapper = mount<
+    Autocomplete<USState, () => boolean, () => boolean>,
+    USStateProps,
+    State
+  >(AutocompleteComponentJSX({}));
   const autocompleteInputWrapper = autocompleteWrapper.find('input').first();
 
   it('should pass updated `input.value` to `onChange` and replace with `props.value`', (done) => {
@@ -449,7 +577,11 @@ describe('Autocomplete keyPress-><character> event handlers', () => {
 });
 
 describe('Autocomplete keyDown->ArrowDown event handlers', () => {
-  const autocompleteWrapper = mount(AutocompleteComponentJSX({}));
+  const autocompleteWrapper = mount<
+    Autocomplete<USState, () => boolean, () => boolean>,
+    USStateProps,
+    State
+  >(AutocompleteComponentJSX({}));
   const autocompleteInputWrapper = autocompleteWrapper.find('input');
 
   it('should highlight the 1st item in the menu when none is selected', () => {
@@ -506,7 +638,9 @@ describe('Autocomplete keyDown->ArrowDown event handlers', () => {
       isOpen: true,
       highlightedIndex: null,
     });
-    autocompleteWrapper.setProps({ isItemSelectable: () => false });
+    autocompleteWrapper.setProps({
+      isItemSelectable: () => false,
+    });
 
     autocompleteInputWrapper.simulate('keyDown', {
       key: 'ArrowDown',
@@ -519,7 +653,11 @@ describe('Autocomplete keyDown->ArrowDown event handlers', () => {
 });
 
 describe('Autocomplete keyDown->ArrowUp event handlers', () => {
-  const autocompleteWrapper = mount(AutocompleteComponentJSX({}));
+  const autocompleteWrapper = mount<
+    Autocomplete<USState, () => boolean, () => boolean>,
+    USStateProps,
+    State
+  >(AutocompleteComponentJSX({}));
   const autocompleteInputWrapper = autocompleteWrapper.find('input');
 
   it('should highlight the last item in the menu when none is selected', () => {
@@ -578,7 +716,9 @@ describe('Autocomplete keyDown->ArrowUp event handlers', () => {
       isOpen: true,
       highlightedIndex: null,
     });
-    autocompleteWrapper.setProps({ isItemSelectable: () => false });
+    autocompleteWrapper.setProps({
+      isItemSelectable: () => false,
+    });
 
     autocompleteInputWrapper.simulate('keyDown', {
       key: 'ArrowUp',
@@ -591,7 +731,11 @@ describe('Autocomplete keyDown->ArrowUp event handlers', () => {
 });
 
 describe('Autocomplete keyDown->Enter event handlers', () => {
-  const autocompleteWrapper = mount(AutocompleteComponentJSX({}));
+  const autocompleteWrapper = mount<
+    Autocomplete<USState, () => boolean, () => boolean>,
+    USStateProps,
+    State
+  >(AutocompleteComponentJSX({}));
   const autocompleteInputWrapper = autocompleteWrapper.find('input');
 
   it('should do nothing if the menu is closed', () => {
@@ -668,7 +812,11 @@ describe('Autocomplete keyDown->Enter event handlers', () => {
 
   it('should do nothing if `keyCode` is not 13', () => {
     const onSelect = jest.fn();
-    const tree = mount(
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(
       AutocompleteComponentJSX({
         onSelect,
       })
@@ -685,7 +833,11 @@ describe('Autocomplete keyDown->Enter event handlers', () => {
 });
 
 describe('Autocomplete keyDown->Escape event handlers', () => {
-  const autocompleteWrapper = mount(AutocompleteComponentJSX({}));
+  const autocompleteWrapper = mount<
+    Autocomplete<USState, () => boolean, () => boolean>,
+    USStateProps,
+    State
+  >(AutocompleteComponentJSX({}));
   const autocompleteInputWrapper = autocompleteWrapper.find('input');
 
   it('should unhighlight any selected menu item + close the menu', () => {
@@ -705,7 +857,11 @@ describe('Autocomplete keyDown->Escape event handlers', () => {
 
 describe('Autocomplete keyDown', () => {
   it("should not clear highlightedIndex for keys that don't modify `input.value`", () => {
-    const tree = mount(AutocompleteComponentJSX({ open: true }));
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(AutocompleteComponentJSX({ open: true }));
     const input = tree.find('input');
     tree.setProps({ value: 'a' });
     expect(tree.state('highlightedIndex')).toBe(0);
@@ -745,7 +901,11 @@ describe('Autocomplete keyDown', () => {
 });
 
 describe('Autocomplete mouse event handlers', () => {
-  const autocompleteWrapper = mount(AutocompleteComponentJSX({}));
+  const autocompleteWrapper = mount<
+    Autocomplete<USState, () => boolean, () => boolean>,
+    USStateProps,
+    State
+  >(AutocompleteComponentJSX({}));
   const autocompleteInputWrapper = autocompleteWrapper.find('input').first();
 
   it('should open menu if it is closed when clicking in the input', () => {
@@ -755,7 +915,11 @@ describe('Autocomplete mouse event handlers', () => {
   });
 
   it('should set `highlightedIndex` when hovering over items in the menu', () => {
-    const tree = mount(AutocompleteComponentJSX({ open: true }));
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(AutocompleteComponentJSX({ open: true }));
     const items = tree.find('div > div > div');
     expect(tree.state('highlightedIndex')).toBe(null);
     items.at(0).simulate('mouseEnter');
@@ -766,10 +930,14 @@ describe('Autocomplete mouse event handlers', () => {
 
   it('should select an item when clicking on an item in the menu', () => {
     let selected;
-    const tree = mount(
+    const tree = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(
       AutocompleteComponentJSX({
         open: true,
-        onSelect(value, item) {
+        onSelect(_value, item) {
           selected = item;
         },
       })
@@ -794,7 +962,7 @@ describe('Autocomplete.props.renderInput', () => {
       AutocompleteComponentJSX({
         value: 'pants',
         inputProps: {
-          foo: 'bar',
+          name: 'test-name',
         },
         renderInput,
       })
@@ -806,13 +974,18 @@ describe('Autocomplete.props.renderInput', () => {
 
 // Component method unit tests
 describe('Autocomplete#renderMenu', () => {
-  const autocompleteWrapper = mount(AutocompleteComponentJSX({}));
+  const autocompleteWrapper = mount<
+    Autocomplete<USState, () => boolean, () => boolean>,
+    USStateProps,
+    State
+  >(AutocompleteComponentJSX({}));
 
   it('should return a <div ref="menu"> ReactComponent when renderMenu() is called', () => {
     //autocompleteInputWrapper.simulate('change', { target: { value: 'Ar' } })
     const autocompleteMenu = autocompleteWrapper.instance().renderMenu();
     expect(autocompleteMenu.type).toEqual('div');
-    expect(typeof autocompleteMenu.ref).toEqual('function');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    expect(typeof (autocompleteMenu as any).ref).toEqual('function');
     expect(autocompleteMenu.props.children.length).toEqual(50);
   });
 
@@ -825,17 +998,21 @@ describe('Autocomplete#renderMenu', () => {
   });
 
   it('should allow using custom components', () => {
-    class Menu extends React.Component {
+    class Menu extends React.Component<{ items: readonly ReactElement[] }> {
       render() {
         return <div>{this.props.items}</div>;
       }
     }
-    class Item extends React.Component {
+    class Item extends React.Component<{ item: USState }> {
       render() {
         return <div>{this.props.item.name}</div>;
       }
     }
-    const wrapper = mount(
+    const wrapper = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(
       AutocompleteComponentJSX({
         renderMenu(items) {
           return <Menu items={items} />;
@@ -852,12 +1029,31 @@ describe('Autocomplete#renderMenu', () => {
 });
 
 describe('Autocomplete isItemSelectable', () => {
-  const autocompleteWrapper = mount(
-    AutocompleteComponentJSX({
-      open: true,
-      items: getCategorizedStates(),
-      isItemSelectable: (item) => !item.header,
-    })
+  const autocompleteWrapper = mount<
+    Autocomplete<
+      USState,
+      () => boolean,
+      (item: USState | Header) => item is USState
+    >,
+    Props<USState, () => boolean, (item: USState | Header) => item is USState>,
+    State
+  >(
+    <Autocomplete
+      getItemValue={(item) => item.name}
+      renderItem={(item) =>
+        'header' in item ? (
+          <div>{item.header}</div>
+        ) : (
+          <div key={item.abbr}>{item.name}</div>
+        )
+      }
+      shouldItemRender={matchStateToTermWithHeaders}
+      open
+      items={getCategorizedStates()}
+      isItemSelectable={(item: USState | Header): item is USState =>
+        !('header' in item)
+      }
+    />
   );
 
   it('should automatically highlight the first selectable item', () => {
@@ -888,10 +1084,14 @@ describe('Public imperative API', () => {
   it('should expose select APIs available on HTMLInputElement', () => {
     const target = document.createElement('div');
     document.body.appendChild(target);
-    const ac = mount(AutocompleteComponentJSX({ value: 'foo' }), {
+    const ac = mount<
+      Autocomplete<USState, () => boolean, () => boolean>,
+      USStateProps,
+      State
+    >(AutocompleteComponentJSX({ value: 'foo' }), {
       attachTo: target,
     });
-    const input = ac.find('input').first().getDOMNode();
+    const input = ac.find('input').first().getDOMNode<HTMLInputElement>();
     const instance = ac.instance();
 
     expect(typeof instance.focus).toBe('function');
